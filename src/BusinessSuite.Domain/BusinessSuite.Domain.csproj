@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    DOMAIN LAYER - the heart of the business.
+    Rule: this project references NOTHING else in the solution and no infrastructure
+    packages (no EF Core, no ASP.NET Core). It must stay plain C#.
+    Target framework, nullable and other shared settings come from Directory.Build.props.
+  -->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BusinessSuite.Tests.Unit" />
+  </ItemGroup>
+
+</Project>

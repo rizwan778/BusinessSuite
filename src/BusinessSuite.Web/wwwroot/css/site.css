@@ -1,0 +1,481 @@
+/* =============================================================================
+   BusinessSuite styles - layered on top of Bootstrap 5.3 (never edit Bootstrap itself).
+   1. Design tokens   2. Layout shell   3. Sidebar   4. Top bar   5. Page elements
+   6. Dashboard cards  7. Sign-in and error pages   8. Forms   9. Utilities
+   ============================================================================= */
+
+/* 1. Design tokens ---------------------------------------------------------- */
+:root {
+    --app-accent: #4f46e5;
+    --app-accent-rgb: 79, 70, 229;
+    --app-accent-dark: #4338ca;
+    --app-accent-darker: #3730a3;
+    --app-body-bg: #f1f5f9;
+    --app-surface: #ffffff;
+    --app-border: #e2e8f0;
+    --app-text-muted: #64748b;
+
+    --app-sidebar-width: 264px;
+    --app-sidebar-bg: #0f172a;
+    --app-sidebar-fg: #cbd5e1;
+    --app-sidebar-muted: #64748b;
+    --app-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --app-sidebar-active: rgba(99, 102, 241, 0.22);
+    --app-topbar-height: 60px;
+
+    /* Bootstrap overrides */
+    --bs-primary: var(--app-accent);
+    --bs-primary-rgb: var(--app-accent-rgb);
+    --bs-link-color: var(--app-accent-dark);
+    --bs-link-color-rgb: 67, 56, 202;
+    --bs-link-hover-color: var(--app-accent-darker);
+    --bs-link-hover-color-rgb: 55, 48, 163;
+    --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+    --bs-border-radius: 0.5rem;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--app-accent);
+    --bs-btn-border-color: var(--app-accent);
+    --bs-btn-hover-bg: var(--app-accent-dark);
+    --bs-btn-hover-border-color: var(--app-accent-dark);
+    --bs-btn-active-bg: var(--app-accent-darker);
+    --bs-btn-active-border-color: var(--app-accent-darker);
+    --bs-btn-disabled-bg: var(--app-accent);
+    --bs-btn-disabled-border-color: var(--app-accent);
+    --bs-btn-focus-shadow-rgb: var(--app-accent-rgb);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--app-accent);
+    --bs-btn-border-color: var(--app-accent);
+    --bs-btn-hover-bg: var(--app-accent);
+    --bs-btn-hover-border-color: var(--app-accent);
+    --bs-btn-active-bg: var(--app-accent-dark);
+    --bs-btn-active-border-color: var(--app-accent-dark);
+    --bs-btn-focus-shadow-rgb: var(--app-accent-rgb);
+}
+
+/* 2. Layout shell ------------------------------------------------------------- */
+.app-body {
+    background-color: var(--app-body-bg);
+}
+
+.app-skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2000;
+    padding: 0.5rem 1rem;
+    background: var(--app-surface);
+    border-radius: var(--bs-border-radius);
+}
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0; /* lets wide tables scroll inside the content instead of the page */
+    display: flex;
+    flex-direction: column;
+}
+
+.app-content {
+    flex: 1 1 auto;
+    padding: 1.25rem 1rem;
+    outline: none;
+}
+
+.app-footer {
+    padding: 1rem;
+    font-size: 0.8125rem;
+    color: var(--app-text-muted);
+    border-top: 1px solid var(--app-border);
+}
+
+@media (min-width: 992px) {
+    .app-content {
+        padding: 2rem;
+    }
+
+    .app-footer {
+        padding: 1rem 2rem;
+    }
+}
+
+/* 3. Sidebar -------------------------------------------------------------------- */
+.app-sidebar {
+    flex: 0 0 auto;
+}
+
+.app-sidebar .offcanvas-lg {
+    --bs-offcanvas-width: var(--app-sidebar-width);
+    --bs-offcanvas-bg: var(--app-sidebar-bg);
+    --bs-offcanvas-color: var(--app-sidebar-fg);
+}
+
+@media (min-width: 992px) {
+    /* Paints the sidebar column down the full page height, even on very long pages. */
+    .app-shell {
+        background: linear-gradient(to right, var(--app-sidebar-bg) var(--app-sidebar-width), transparent var(--app-sidebar-width));
+    }
+
+    .app-sidebar {
+        width: var(--app-sidebar-width);
+        background-color: var(--app-sidebar-bg);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+}
+
+.app-sidebar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-sidebar-body {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 0 1.5rem;
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 1.125rem 1.25rem;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+}
+
+.app-brand:hover {
+    color: #ffffff;
+}
+
+.app-nav-section-title {
+    padding: 1rem 1.25rem 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--app-sidebar-muted);
+}
+
+.app-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.0625rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--app-sidebar-fg);
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.app-nav-link .bi {
+    font-size: 1.05rem;
+    width: 1.25rem;
+    text-align: center;
+}
+
+a.app-nav-link:hover,
+a.app-nav-link:focus-visible {
+    background-color: var(--app-sidebar-hover);
+    color: #ffffff;
+}
+
+.app-nav-link.active {
+    background-color: var(--app-sidebar-active);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 #818cf8;
+}
+
+.app-nav-link.is-planned {
+    color: var(--app-sidebar-muted);
+    cursor: default;
+}
+
+.app-nav-badge {
+    margin-left: auto;
+    padding: 0.0625rem 0.4rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--app-sidebar-muted);
+}
+
+/* 4. Top bar ------------------------------------------------------------------- */
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: var(--app-topbar-height);
+    padding: 0 1rem;
+    background-color: var(--app-surface);
+    border-bottom: 1px solid var(--app-border);
+}
+
+@media (min-width: 992px) {
+    .app-topbar {
+        padding: 0 2rem;
+    }
+}
+
+.app-org-switcher {
+    display: inline-flex;
+    align-items: center;
+}
+
+.app-org-switcher:disabled {
+    opacity: 0.75;
+}
+
+.app-env-badge {
+    font-weight: 600;
+}
+
+.app-user-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.app-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4338ca);
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* 5. Page elements ---------------------------------------------------------------- */
+.app-breadcrumbs {
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+}
+
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--app-text-muted);
+}
+
+.section-title {
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+/* 6. Dashboard cards ---------------------------------------------------------------- */
+.stat-card,
+.module-card {
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+    padding: 1.125rem;
+    background-color: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 0.75rem;
+}
+
+.stat-icon,
+.module-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.stat-icon-indigo { background: #eef2ff; color: #4338ca; }
+.stat-icon-emerald { background: #ecfdf5; color: #047857; }
+.stat-icon-sky { background: #f0f9ff; color: #0369a1; }
+.stat-icon-amber { background: #fffbeb; color: #b45309; }
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.stat-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.stat-meta {
+    font-size: 0.8125rem;
+    color: var(--app-text-muted);
+}
+
+.module-icon {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+.module-card.is-planned .module-icon {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.module-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.module-description {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--app-text-muted);
+}
+
+.module-section {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+/* 7. Sign-in and error pages --------------------------------------------------------- */
+.auth-body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.18), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.14), transparent 40%),
+        var(--app-body-bg);
+}
+
+.auth-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 1rem;
+}
+
+.auth-footer {
+    margin: 1.5rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--app-text-muted);
+}
+
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    font-size: 1.75rem;
+}
+
+.status-icon-danger { background: #fef2f2; color: #b91c1c; }
+.status-icon-warning { background: #fffbeb; color: #b45309; }
+
+/* 8. Forms (jQuery unobtrusive validation classes mapped to Bootstrap) ------------------ */
+.input-validation-error {
+    border-color: var(--bs-form-invalid-border-color);
+}
+
+.input-validation-error:focus {
+    border-color: var(--bs-form-invalid-border-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+}
+
+.field-validation-error {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* 9. Utilities ----------------------------------------------------------------------- */
+.min-w-0 {
+    min-width: 0;
+}
+
+/* 10. Section tabs (Inventory page) ---------------------------------------------------- */
+.section-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.375rem;
+    margin: 0 0 1.25rem;
+    overflow-x: auto;
+    list-style: none;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.section-tabs .section-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: var(--app-text-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.section-tabs .section-tab:hover {
+    color: var(--app-accent-dark);
+    background: rgba(var(--app-accent-rgb), 0.08);
+}
+
+.section-tabs .section-tab.active {
+    color: #fff;
+    background: var(--app-accent);
+    box-shadow: 0 1px 3px rgba(var(--app-accent-rgb), 0.4);
+}

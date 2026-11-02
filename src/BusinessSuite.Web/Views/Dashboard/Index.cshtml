@@ -1,0 +1,97 @@
+@model DashboardViewModel
+@{
+    ViewData.SetPageTitle("Dashboard");
+    ViewData.AddBreadcrumb("Dashboard");
+
+    var plannedCount = Model.Modules.SelectMany(group => group.Items).Count(item => item.Status == ModuleStatus.Planned);
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Welcome, @Model.GreetingName</h1>
+        <p class="page-subtitle">
+            <i class="bi bi-clock me-1" aria-hidden="true"></i>
+            @Model.LocalNow.ToString("dddd, d MMMM yyyy · HH:mm", CultureInfo.CurrentCulture)
+            <span class="text-body-tertiary">(@Model.TimeZoneId)</span>
+        </p>
+    </div>
+</div>
+
+<section aria-labelledby="status-heading" class="mb-4">
+    <h2 id="status-heading" class="section-title">Foundation status</h2>
+    <div class="row g-3">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <span class="stat-icon stat-icon-indigo"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i></span>
+                <div>
+                    <div class="stat-label">Version</div>
+                    <div class="stat-value">v@(Model.Version)</div>
+                    <div class="stat-meta">@Model.EnvironmentName environment</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <span class="stat-icon stat-icon-emerald"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                <div>
+                    <div class="stat-label">Security</div>
+                    <div class="stat-value">Signed in</div>
+                    <div class="stat-meta">Secure cookie · CSRF · CSP</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <span class="stat-icon stat-icon-sky"><i class="bi bi-database" aria-hidden="true"></i></span>
+                <div>
+                    <div class="stat-label">Data</div>
+                    <div class="stat-value">SQL Server</div>
+                    <div class="stat-meta">EF Core migrations · <a href="~/health/ready">health check</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <span class="stat-icon stat-icon-amber"><i class="bi bi-signpost-2" aria-hidden="true"></i></span>
+                <div>
+                    <div class="stat-label">Roadmap</div>
+                    <div class="stat-value">Foundation</div>
+                    <div class="stat-meta">Phase 1 of 5 · @plannedCount modules planned</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section aria-labelledby="modules-heading">
+    <h2 id="modules-heading" class="section-title">Modules</h2>
+    <div class="row g-3">
+        @foreach (var moduleGroup in Model.Modules)
+        {
+            foreach (var item in moduleGroup.Items)
+            {
+                var planned = item.Status == ModuleStatus.Planned;
+                <div class="col-12 col-md-6 col-xxl-4">
+                    <div class="module-card @(planned ? "is-planned" : null)">
+                        <span class="module-icon"><i class="bi bi-@item.Icon" aria-hidden="true"></i></span>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <h3 class="module-title">@item.Title</h3>
+                                @if (planned)
+                                {
+                                    <span class="badge rounded-pill text-bg-light border">@item.PlannedPhase</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill text-bg-success">Available</span>
+                                }
+                            </div>
+                            <p class="module-description">@item.Description</p>
+                            <span class="module-section">@moduleGroup.Title</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>

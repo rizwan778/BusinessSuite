@@ -1,0 +1,44 @@
+@model PurchaseListViewModel
+@{
+    ViewData.SetPageTitle("Purchases");
+    var query = Model.Query;
+}
+
+<form method="get" class="card card-body border-0 shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-2"><label class="form-label small" for="number">Purchase no.</label><input id="number" name="number" value="@query.Number" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label small" for="supplierId">Supplier</label>
+            <select id="supplierId" name="supplierId" class="form-select"><option value="">All suppliers</option>
+                @foreach (var option in Model.Suppliers) { <option value="@option.Value" selected="@(option.Value == query.SupplierId?.ToString())">@option.Text</option> }</select></div>
+        <div class="col-md-2"><label class="form-label small" for="from">From</label><input id="from" name="from" type="date" value="@(query.From?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" value="@(query.To?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-3"></div>
+        <div class="col-md-3"><label class="form-label small" for="status">Purchase status</label>
+            <select id="status" name="status" class="form-select"><option value="">All</option>
+                @foreach (var value in Enum.GetValues<PurchaseStatus>()) { <option value="@value" selected="@(query.Status == value)">@value</option> }</select></div>
+        <div class="col-md-3"><label class="form-label small" for="paymentStatus">Payment status</label>
+            <select id="paymentStatus" name="paymentStatus" class="form-select"><option value="">All</option>
+                @foreach (var value in Enum.GetValues<PaymentStatus>()) { <option value="@value" selected="@(query.PaymentStatus == value)">@value</option> }</select></div>
+        <div class="col-md-3 d-flex gap-2"><button class="btn btn-outline-primary flex-grow-1" type="submit">Filter</button><a asp-action="Index" class="btn btn-outline-secondary" title="Clear"><i class="bi bi-x-lg" aria-hidden="true"></i></a></div>
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Purchase no.</th><th>Supplier</th><th>Date</th><th>Warehouse</th><th class="text-end">Total</th><th>Payment</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var purchase in Model.Purchases.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@purchase.Id" class="fw-semibold text-decoration-none">@purchase.Number</a></td>
+                    <td>@purchase.SupplierName</td><td>@purchase.PurchaseDate.ToString("d")</td><td>@purchase.WarehouseName</td>
+                    <td class="text-end">@purchase.GrandTotal.ToString("N2")</td>
+                    <td><span class="badge @(purchase.PaymentStatus switch { PaymentStatus.Paid => "text-bg-success", PaymentStatus.PartiallyPaid => "text-bg-warning", _ => "text-bg-danger" })">@purchase.PaymentStatus</span></td>
+                    <td><span class="badge @(purchase.Status switch { PurchaseStatus.Received => "text-bg-success", PurchaseStatus.Cancelled => "text-bg-secondary", PurchaseStatus.Draft => "text-bg-light border", PurchaseStatus.PartiallyReceived => "text-bg-info", _ => "text-bg-warning" })">@purchase.Status</span></td>
+                </tr>
+            }
+            @if (Model.Purchases.Items.Count == 0) { <tr><td colspan="7" class="text-center text-body-secondary py-4">No purchases found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model.Purchases)" />

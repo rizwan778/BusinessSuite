@@ -1,0 +1,25 @@
+@model PagedResult<WarehouseDetails>
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <form method="get" class="input-group w-auto"><input name="search" value="@(ViewData["Search"])" class="form-control" placeholder="Search warehouses" aria-label="Search warehouses" /><button class="btn btn-outline-primary" type="submit">Search</button></form>
+    <a asp-action="CreateWarehouse" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New warehouse</a>
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Name</th><th>Code</th><th>Address</th><th class="text-end">Stock lines</th><th class="text-end">Value</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var warehouse in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="WarehouseDetails" asp-route-id="@warehouse.Id" class="fw-semibold text-decoration-none">@warehouse.Name</a>@if (warehouse.IsDefault) { <span class="badge text-bg-primary ms-1">Default</span> }</td>
+                    <td><code>@warehouse.Code</code></td><td>@(warehouse.Address ?? "—")</td>
+                    <td class="text-end">@warehouse.StockLineCount</td><td class="text-end">@warehouse.StockValue.ToString("N2")</td>
+                    <td><span class="badge @(warehouse.IsActive ? "text-bg-success" : "text-bg-secondary")">@(warehouse.IsActive ? "Active" : "Inactive")</span></td>
+                    <td class="text-end text-nowrap"><a asp-action="WarehouseDetails" asp-route-id="@warehouse.Id" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                        <a asp-action="EditWarehouse" asp-route-id="@warehouse.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a></td>
+                </tr>
+            }
+            @if (Model.Items.Count == 0) { <tr><td colspan="7" class="text-center text-body-secondary py-4">No warehouses yet.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model)" />

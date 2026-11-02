@@ -1,0 +1,42 @@
+@model BusinessSuite.Application.Common.Paging.PagedResult<AttributeDefinitionDetails>
+@{
+    ViewData.SetPageTitle("Attributes");
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb("Attributes");
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h4 mb-0">Product attributes</h1>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New attribute</a>
+</div>
+
+<form method="get" class="input-group mb-3">
+    <input name="search" value="@(ViewData["Search"])" class="form-control" placeholder="Search attributes" aria-label="Search attributes" />
+    <button class="btn btn-outline-primary" type="submit">Search</button>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Name</th><th>Code</th><th>Type</th><th>Applies to</th><th>Required</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@item.Id" class="fw-semibold text-decoration-none">@item.Name</a></td>
+                        <td><code>@item.Code</code></td>
+                        <td>@item.DataType</td>
+                        <td>@(item.Scope == AttributeScope.Variant ? "Each variant" : "Product")@(item.CategoryName is null ? "" : $" · {item.CategoryName}")</td>
+                        <td>@(item.IsRequired ? "Yes" : "No")</td>
+                        <td><span class="badge @(item.IsActive ? "text-bg-success" : "text-bg-secondary")">@(item.IsActive ? "Active" : "Inactive")</span></td>
+                        <td class="text-end"><a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye" aria-hidden="true"></i></a></td>
+                    </tr>
+                }
+                @if (Model.Items.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-body-secondary py-4">No attributes defined yet. Create one (Brand, Size, RAM…) to add fields to your product form.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

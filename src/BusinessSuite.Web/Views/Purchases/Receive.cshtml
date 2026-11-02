@@ -1,0 +1,36 @@
+@model QuantityFormModel
+@{
+    var purchase = Model.Purchase!;
+    ViewData.SetPageTitle($"Receive {purchase.Number}");
+}
+<form asp-action="Receive" asp-route-id="@purchase.Id" method="post" novalidate data-disable-on-submit>
+    <partial name="_FormErrors" />
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h5">Receive goods · @purchase.Number</h2>
+        <p class="small text-body-secondary">@purchase.Supplier.Name into @purchase.WarehouseName. Enter what actually arrived; partial receipts are allowed.</p>
+        <div class="row g-3">
+            <div class="col-md-4"><label asp-for="Date" class="form-label">Received on</label><input asp-for="Date" type="date" class="form-control" /></div>
+            <div class="col-md-8"><label asp-for="Notes" class="form-label">Notes (e.g. delivery note no.)</label><input asp-for="Notes" class="form-control" /></div>
+        </div>
+    </div></div>
+    <div class="card border-0 shadow-sm mb-3"><div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>Item</th><th class="text-end">Ordered</th><th class="text-end">Already received</th><th class="text-end">Outstanding</th><th>Receive now</th></tr></thead>
+            <tbody>
+                @for (var i = 0; i < purchase.Items.Count; i++)
+                {
+                    var item = purchase.Items[i];
+                    <tr>
+                        <td>@item.Name <code>@item.Sku</code></td>
+                        <td class="text-end">@item.Quantity.ToString("0.####")</td><td class="text-end">@item.ReceivedQuantity.ToString("0.####")</td><td class="text-end">@item.Remaining.ToString("0.####")</td>
+                        <td>
+                            <input type="hidden" name="Lines[@i].ItemId" value="@item.Id" />
+                            <input name="Lines[@i].Quantity" type="number" step="any" min="0" max="@item.Remaining.ToString(CultureInfo.InvariantCulture)" value="@(Model.Lines[i].Quantity?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Receive @item.Sku" disabled="@(item.Remaining <= 0)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div></div>
+    <div class="d-flex gap-2"><button type="submit" class="btn btn-primary">Record receipt</button><a asp-action="Details" asp-route-id="@purchase.Id" class="btn btn-outline-secondary">Cancel</a></div>
+</form>

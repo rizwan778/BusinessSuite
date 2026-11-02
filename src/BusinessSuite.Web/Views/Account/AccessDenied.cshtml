@@ -1,0 +1,13 @@
+@{
+    Layout = "_MinimalLayout";
+    ViewData.SetPageTitle("Access denied");
+}
+
+<div class="auth-card card border-0 shadow-sm text-center">
+    <div class="card-body p-4 p-sm-5">
+        <span class="status-icon status-icon-danger"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+        <h1 class="h4 mt-3">Access denied</h1>
+        <p class="text-body-secondary">You do not have permission to open this page. If you need access, ask your administrator.</p>
+        <a class="btn btn-primary" asp-area="" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+</div>

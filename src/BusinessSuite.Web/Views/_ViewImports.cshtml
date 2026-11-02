@@ -1,0 +1,22 @@
+@using System.Globalization
+@using BusinessSuite.Application.Common.Abstractions
+@using BusinessSuite.Web
+@using BusinessSuite.Web.Framework.Mvc
+@using BusinessSuite.Web.Framework.Navigation
+@using BusinessSuite.Web.Models.Account
+@using BusinessSuite.Web.Models.Dashboard
+@using BusinessSuite.Web.Models.Shared
+@using BusinessSuite.Web.Models.Products
+@using BusinessSuite.Web.Models.Inventory
+@using BusinessSuite.Web.Models.Purchasing
+@using BusinessSuite.Application.Features.Purchasing
+@using BusinessSuite.Application.Features.Inventory
+@using BusinessSuite.Application.Common.Paging
+@using BusinessSuite.Domain.Inventory
+@using BusinessSuite.Application.Features.Catalog
+@using BusinessSuite.Domain.Catalog
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.Extensions.Options
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, BusinessSuite.Web
+@inject IOptions<BusinessSuite.Application.Common.Options.ApplicationOptions> AppOptions

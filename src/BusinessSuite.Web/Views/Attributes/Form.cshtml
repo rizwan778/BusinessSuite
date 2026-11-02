@@ -1,0 +1,51 @@
+@model AttributeFormModel
+@{
+    ViewData.SetPageTitle(Model.IsEdit ? "Edit attribute" : "New attribute");
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb("Attributes", Url.Action("Index", "Attributes"));
+    ViewData.AddBreadcrumb(Model.IsEdit ? "Edit" : "New");
+}
+
+<h1 class="h4 mb-3">@(Model.IsEdit ? "Edit attribute" : "New attribute")</h1>
+
+<form asp-action="@(Model.IsEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" novalidate data-disable-on-submit class="card card-body border-0 shadow-sm">
+    <partial name="_FormErrors" />
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label><input asp-for="Name" class="form-control" placeholder="e.g. Brand" /></div>
+        <div class="col-md-6">
+            <label asp-for="Code" class="form-label">Code <span class="text-danger">*</span></label>
+            <input asp-for="Code" class="form-control" readonly="@Model.IsEdit" placeholder="e.g. brand" />
+            @if (!Model.IsEdit) { <div class="form-text">Fixed after creation.</div> }
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DataType" class="form-label">Data type</label>
+            <select asp-for="DataType" class="form-select" disabled="@Model.IsEdit" asp-items="Html.GetEnumSelectList<AttributeDataType>()"></select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Scope" class="form-label">Applies to</label>
+            <select asp-for="Scope" class="form-select" disabled="@Model.IsEdit">
+                <option value="@AttributeScope.Product" selected="@(Model.Scope == AttributeScope.Product)">The product</option>
+                <option value="@AttributeScope.Variant" selected="@(Model.Scope == AttributeScope.Variant)">Each variant</option>
+            </select>
+        </div>
+        <div class="col-md-6"><label asp-for="UnitLabel" class="form-label">Unit label</label><input asp-for="UnitLabel" class="form-control" placeholder="e.g. GB, ml" /></div>
+        <div class="col-md-6">
+            <label asp-for="CategoryId" class="form-label">Limit to category</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="Model.CategoryOptions"><option value="">All categories</option></select>
+        </div>
+        <div class="col-md-4"><label asp-for="SortOrder" class="form-label">Position</label><input asp-for="SortOrder" type="number" class="form-control" /></div>
+        <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input asp-for="IsRequired" class="form-check-input" /><label asp-for="IsRequired" class="form-check-label">Required</label></div></div>
+        <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input asp-for="IsFilterable" class="form-check-input" /><label asp-for="IsFilterable" class="form-check-label">Filterable</label></div></div>
+        @if (!Model.IsEdit)
+        {
+            <div class="col-12">
+                <label asp-for="OptionLabels" class="form-label">Options (Dropdown / MultiSelect), one per line</label>
+                <textarea asp-for="OptionLabels" class="form-control" rows="4"></textarea>
+            </div>
+        }
+    </div>
+    <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="@(Model.IsEdit ? "Details" : "Index")" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>

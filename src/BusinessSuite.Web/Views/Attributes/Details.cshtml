@@ -1,0 +1,65 @@
+@model AttributeDefinitionDetails
+@{
+    ViewData.SetPageTitle(Model.Name);
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb("Attributes", Url.Action("Index", "Attributes"));
+    ViewData.AddBreadcrumb(Model.Name);
+    var hasOptions = Model.DataType is AttributeDataType.Dropdown or AttributeDataType.MultiSelect;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">@Model.Name <span class="badge @(Model.IsActive ? "text-bg-success" : "text-bg-secondary") align-middle">@(Model.IsActive ? "Active" : "Inactive")</span></h1>
+        <div class="text-body-secondary small"><code>@Model.Code</code> · @Model.DataType · @(Model.Scope == AttributeScope.Variant ? "each variant" : "product")@(Model.IsRequired ? " · required" : "")@(string.IsNullOrEmpty(Model.UnitLabel) ? "" : $" · unit {Model.UnitLabel}")@(Model.CategoryName is null ? "" : $" · category {Model.CategoryName}")</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <form asp-action="SetStatus" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" name="isActive" value="@((!Model.IsActive).ToString().ToLowerInvariant())" />
+            <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(Model.IsActive ? "Deactivate" : "Activate")</button>
+        </form>
+    </div>
+</div>
+
+@if (hasOptions)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent"><h2 class="h6 mb-0">Options</h2></div>
+        <ul class="list-group list-group-flush">
+            @foreach (var option in Model.Options.OrderBy(option => option.SortOrder))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@option.Label @if (!option.IsActive) { <span class="badge text-bg-secondary">Retired</span> }</span>
+                    <span class="d-flex gap-1">
+                        <form asp-action="SetOptionStatus" asp-route-id="@Model.Id" method="post">
+                            <input type="hidden" name="optionId" value="@option.Id" />
+                            <input type="hidden" name="label" value="@option.Label" />
+                            <input type="hidden" name="sortOrder" value="@option.SortOrder" />
+                            <input type="hidden" name="isActive" value="@((!option.IsActive).ToString().ToLowerInvariant())" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">@(option.IsActive ? "Retire" : "Restore")</button>
+                        </form>
+                        <form asp-action="DeleteOption" asp-route-id="@Model.Id" method="post">
+                            <input type="hidden" name="optionId" value="@option.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete (only if unused)"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                        </form>
+                    </span>
+                </li>
+            }
+            @if (Model.Options.Count == 0)
+            {
+                <li class="list-group-item text-body-secondary">No options yet.</li>
+            }
+        </ul>
+        <div class="card-body border-top">
+            <form asp-action="AddOption" asp-route-id="@Model.Id" method="post" class="row g-2">
+                <div class="col"><input name="label" class="form-control" placeholder="New option (e.g. Samsung, 8 GB, Red)" aria-label="New option" /></div>
+                <div class="col-3 col-md-2"><input name="sortOrder" type="number" value="@Model.Options.Count" class="form-control" aria-label="Position" /></div>
+                <div class="col-auto"><button type="submit" class="btn btn-primary">Add option</button></div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-body-secondary">This attribute type takes a free value, so it has no options.</p>
+}

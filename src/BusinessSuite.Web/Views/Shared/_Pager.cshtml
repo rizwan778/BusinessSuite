@@ -1,0 +1,23 @@
+@* Previous/next links that keep the current filters. Model: PagerModel. *@
+@model PagerModel
+@using Microsoft.AspNetCore.WebUtilities
+@{
+    string Link(int target)
+    {
+        var query = Context.Request.Query
+            .Where(pair => !string.Equals(pair.Key, "page", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(pair => pair.Key, pair => (string?)pair.Value.ToString());
+        query["page"] = target.ToString();
+        return QueryHelpers.AddQueryString(Context.Request.Path, query);
+    }
+}
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span class="small text-body-secondary">@Model.TotalCount rows · page @Model.Page of @Model.TotalPages</span>
+        <div class="btn-group">
+            <a class="btn btn-sm btn-outline-secondary @(Model.Page > 1 ? null : "disabled")" href="@Link(Model.Page - 1)">Previous</a>
+            <a class="btn btn-sm btn-outline-secondary @(Model.Page < Model.TotalPages ? null : "disabled")" href="@Link(Model.Page + 1)">Next</a>
+        </div>
+    </div>
+}

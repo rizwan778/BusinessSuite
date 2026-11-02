@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    UNIT TESTS - fast tests with no database, network or web server.
+    Covers domain rules, application services, building blocks and architecture rules.
+    Shared test packages come from tests/Directory.Build.props.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BusinessSuite.Domain\BusinessSuite.Domain.csproj" />
+    <ProjectReference Include="..\..\src\BusinessSuite.Application\BusinessSuite.Application.csproj" />
+    <ProjectReference Include="..\..\src\BusinessSuite.Infrastructure\BusinessSuite.Infrastructure.csproj" />
+    <!-- Referenced only so architecture tests can inspect the Web assembly. -->
+    <ProjectReference Include="..\..\src\BusinessSuite.Web\BusinessSuite.Web.csproj" />
+  </ItemGroup>
+
+</Project>

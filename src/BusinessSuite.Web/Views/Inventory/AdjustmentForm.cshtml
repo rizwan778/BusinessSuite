@@ -1,0 +1,23 @@
+@model AdjustmentFormModel
+@{ ViewData.SetPageTitle("New stock adjustment"); }
+<form asp-action="CreateAdjustment" method="post" novalidate data-disable-on-submit>
+    <partial name="_FormErrors" />
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h5">New stock adjustment</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="WarehouseId" class="form-label">Warehouse <span class="text-danger">*</span></label>
+                <select asp-for="WarehouseId" class="form-select" asp-items="Model.Warehouses"><option value="@Guid.Empty">Select a warehouse…</option></select>
+            </div>
+            <div class="col-md-4"><label asp-for="Reason" class="form-label"></label><select asp-for="Reason" class="form-select" asp-items="Html.GetEnumSelectList<StockAdjustmentReason>()"></select></div>
+            <div class="col-md-4"><label asp-for="AdjustmentDate" class="form-label">Date</label><input asp-for="AdjustmentDate" type="date" class="form-control" /></div>
+            <div class="col-12"><label asp-for="Notes" class="form-label"></label><input asp-for="Notes" class="form-control" /></div>
+        </div>
+    </div></div>
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h3 class="h6">Items</h3>
+        <partial name="_LineInputs" model="(IReadOnlyList<StockLineInput>)Model.Lines" view-data='new ViewDataDictionary(ViewData) { { "Direction", true } }' />
+    </div></div>
+    <div class="form-check mb-3"><input asp-for="PostNow" class="form-check-input" /><label asp-for="PostNow" class="form-check-label">Post now (updates stock immediately; otherwise saved as a draft)</label></div>
+    <div class="d-flex gap-2"><button type="submit" class="btn btn-primary">Save</button><a asp-action="Adjustments" class="btn btn-outline-secondary">Cancel</a></div>
+</form>

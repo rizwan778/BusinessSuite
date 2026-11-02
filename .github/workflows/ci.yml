@@ -1,0 +1,86 @@
+# Continuous integration: restore, build and run ALL tests (including SQL Server tests) on every
+# push to main and every pull request. Free for public repositories and within the free minutes
+# of private repositories. Nothing is deployed.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Set up .NET (version from global.json)
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore BusinessSuite.sln
+
+      - name: Build
+        run: dotnet build BusinessSuite.sln --configuration Release --no-restore
+
+      # A throw-away SQL Server for integration tests. The password is random for every run,
+      # masked in the logs, and never stored in the repository.
+      - name: Start SQL Server
+        run: |
+          sa_password="Ci$(openssl rand -hex 16)!aA1"
+          echo "::add-mask::$sa_password"
+          docker run --detach --name sqlserver \
+            --env ACCEPT_EULA=Y \
+            --env "MSSQL_SA_PASSWORD=$sa_password" \
+            --publish 1433:1433 \
+            mcr.microsoft.com/mssql/server:2022-latest
+          for attempt in $(seq 1 60); do
+            if docker logs sqlserver 2>&1 | grep -q "SQL Server is now ready for client connections"; then
+              echo "SQL Server is ready."
+              break
+            fi
+            sleep 2
+          done
+          if ! docker logs sqlserver 2>&1 | grep -q "SQL Server is now ready for client connections"; then
+            echo "SQL Server did not start in time." >&2
+            docker logs sqlserver
+            exit 1
+          fi
+          sleep 5
+          echo "BUSINESSSUITE_TEST_SQLSERVER=Server=localhost,1433;User ID=sa;Password=$sa_password;TrustServerCertificate=True" >> "$GITHUB_ENV"
+
+      - name: Test
+        run: >-
+          dotnet test BusinessSuite.sln
+          --configuration Release
+          --no-build
+          --logger "trx;LogFilePrefix=results"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 14

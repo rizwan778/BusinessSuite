@@ -1,0 +1,21 @@
+@model PagedResult<StockMovementDetails>
+@{
+    var warehouses = (IReadOnlyList<SelectListItem>)ViewData["Warehouses"]!;
+    var selectedWarehouse = ViewData["WarehouseId"]?.ToString();
+    var selectedType = ViewData["Type"]?.ToString();
+}
+<form method="get" class="card card-body border-0 shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-2"><label class="form-label small" for="sku">SKU</label><input id="sku" name="sku" value="@(ViewData["Sku"])" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label small" for="warehouseId">Warehouse</label>
+            <select id="warehouseId" name="warehouseId" class="form-select"><option value="">All</option>
+                @foreach (var option in warehouses) { <option value="@option.Value" selected="@(option.Value == selectedWarehouse)">@option.Text</option> }</select></div>
+        <div class="col-md-2"><label class="form-label small" for="type">Type</label>
+            <select id="type" name="type" class="form-select"><option value="">All</option>
+                @foreach (var type in Enum.GetValues<StockMovementType>()) { <option value="@type" selected="@(type.ToString() == selectedType)">@type</option> }</select></div>
+        <div class="col-md-2"><label class="form-label small" for="from">From</label><input id="from" name="from" type="date" value="@(((DateOnly?)ViewData["From"])?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" value="@(((DateOnly?)ViewData["To"])?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-1"><button class="btn btn-outline-primary w-100" type="submit">Go</button></div>
+    </div>
+</form>
+<partial name="_MovementsTable" model="Model" />

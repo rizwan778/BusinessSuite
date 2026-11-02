@@ -1,0 +1,96 @@
+@model PurchaseDetails
+@{
+    ViewData.SetPageTitle($"Purchase {Model.Number}");
+    var totals = Model.Totals;
+    var canReceive = Model.Status is PurchaseStatus.Submitted or PurchaseStatus.PartiallyReceived;
+    var canReturn = Model.Items.Any(item => item.Returnable > 0);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-1">@Model.Number <partial name="_StatusBadges" model="(Model.Status, Model.PaymentStatus)" /></h2>
+        <div class="small text-body-secondary">@Model.Supplier.Name · @Model.PurchaseDate.ToString("d") · into @Model.WarehouseName</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        @if (Model.Status == PurchaseStatus.Draft)
+        {
+            <form asp-action="Submit" asp-route-id="@Model.Id" method="post"><button class="btn btn-primary" type="submit">Submit</button></form>
+        }
+        @if (canReceive) { <a asp-action="Receive" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-box-arrow-in-down me-1" aria-hidden="true"></i>Receive goods</a> }
+        @if (canReturn) { <a asp-action="Return" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-arrow-return-left me-1" aria-hidden="true"></i>Return to supplier</a> }
+        @if (Model.Status is PurchaseStatus.Draft or PurchaseStatus.Submitted && Model.Receipts.Count == 0)
+        {
+            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post"><button class="btn btn-outline-danger" type="submit">Cancel purchase</button></form>
+        }
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Supplier</h3>
+        <div class="fw-semibold">@Model.Supplier.Name</div>
+        <div class="small text-body-secondary">@(Model.Supplier.ContactPerson ?? "")<br />@(Model.Supplier.Phone ?? "")<br />@(Model.Supplier.Email ?? "")<br />@(Model.Supplier.Address ?? "")</div>
+    </div></div></div>
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Purchase</h3>
+        <dl class="row mb-0 small">
+            <dt class="col-5">Date</dt><dd class="col-7">@Model.PurchaseDate.ToString("d")</dd>
+            <dt class="col-5">Warehouse</dt><dd class="col-7">@Model.WarehouseName</dd>
+            <dt class="col-5">Status</dt><dd class="col-7">@Model.Status</dd>
+            <dt class="col-5">Notes</dt><dd class="col-7">@(string.IsNullOrEmpty(Model.Notes) ? "—" : Model.Notes)</dd>
+        </dl>
+    </div></div></div>
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Payment</h3>
+        <dl class="row mb-0 small">
+            <dt class="col-6">Status</dt><dd class="col-6">@Model.PaymentStatus</dd>
+            <dt class="col-6">Grand total</dt><dd class="col-6">@totals.GrandTotal.ToString("N2")</dd>
+            <dt class="col-6">Paid</dt><dd class="col-6">@Model.AmountPaid.ToString("N2")</dd>
+            <dt class="col-6">Balance due</dt><dd class="col-6 fw-semibold">@Model.BalanceDue.ToString("N2")</dd>
+        </dl>
+    </div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3"><div class="card-header bg-transparent"><h3 class="h6 mb-0">Items</h3></div><div class="table-responsive">
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Item</th><th class="text-end">Ordered</th><th class="text-end">Received</th><th class="text-end">Returned</th><th class="text-end">Price</th><th class="text-end">Disc %</th><th class="text-end">Tax %</th><th class="text-end">Line total</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr><td>@item.Name <code>@item.Sku</code></td>
+                    <td class="text-end">@item.Quantity.ToString("0.####") @item.UnitCode</td><td class="text-end">@item.ReceivedQuantity.ToString("0.####")</td><td class="text-end">@item.ReturnedQuantity.ToString("0.####")</td>
+                    <td class="text-end">@item.UnitPrice.ToString("N2")</td><td class="text-end">@item.DiscountPercent.ToString("0.##")</td><td class="text-end">@item.TaxPercent.ToString("0.##")</td>
+                    <td class="text-end">@((item.LineNet + item.LineTax).ToString("N2"))</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="7" class="text-end">Subtotal</td><td class="text-end">@totals.Subtotal.ToString("N2")</td></tr>
+            <tr><td colspan="7" class="text-end">Order discount</td><td class="text-end">- @totals.OrderDiscount.ToString("N2")</td></tr>
+            <tr><td colspan="7" class="text-end">Tax</td><td class="text-end">@totals.Tax.ToString("N2")</td></tr>
+            <tr class="fw-bold"><td colspan="7" class="text-end">Grand total</td><td class="text-end">@totals.GrandTotal.ToString("N2")</td></tr>
+        </tfoot>
+    </table>
+</div></div>
+
+<div class="row g-3">
+    <div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-transparent"><h3 class="h6 mb-0">Receiving history</h3></div>
+        <ul class="list-group list-group-flush">
+            @foreach (var receipt in Model.Receipts)
+            {
+                <li class="list-group-item"><div class="fw-semibold">@receipt.Number <span class="text-body-secondary small fw-normal">· @receipt.ReceivedOn.ToString("d")</span></div>
+                    <div class="small">@string.Join(", ", receipt.Lines.Select(line => $"{line.Sku} x {line.Quantity:0.####}"))</div>
+                    @if (!string.IsNullOrEmpty(receipt.Notes)) { <div class="small text-body-secondary">@receipt.Notes</div> }</li>
+            }
+            @if (Model.Receipts.Count == 0) { <li class="list-group-item text-body-secondary">Nothing received yet.</li> }
+        </ul></div></div>
+    <div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-transparent"><h3 class="h6 mb-0">Return history</h3></div>
+        <ul class="list-group list-group-flush">
+            @foreach (var purchaseReturn in Model.Returns)
+            {
+                <li class="list-group-item"><div class="fw-semibold">@purchaseReturn.Number <span class="text-body-secondary small fw-normal">· @purchaseReturn.ReturnedOn.ToString("d")</span></div>
+                    <div class="small">@string.Join(", ", purchaseReturn.Lines.Select(line => $"{line.Sku} x {line.Quantity:0.####}"))</div>
+                    <div class="small text-body-secondary">Reason: @purchaseReturn.Reason</div></li>
+            }
+            @if (Model.Returns.Count == 0) { <li class="list-group-item text-body-secondary">No returns.</li> }
+        </ul></div></div>
+</div>

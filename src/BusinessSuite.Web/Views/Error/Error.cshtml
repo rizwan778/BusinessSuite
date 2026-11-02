@@ -1,0 +1,24 @@
+@model ErrorViewModel
+@{
+    Layout = "_MinimalLayout";
+    ViewData.SetPageTitle(Model.Title);
+    var tone = Model.StatusCode >= 500 ? "danger" : "warning";
+}
+
+<div class="auth-card card border-0 shadow-sm text-center">
+    <div class="card-body p-4 p-sm-5">
+        <span class="status-icon status-icon-@tone"><i class="bi bi-@Model.Icon" aria-hidden="true"></i></span>
+        <p class="text-body-tertiary small fw-semibold mt-3 mb-1">Error @Model.StatusCode</p>
+        <h1 class="h4">@Model.Title</h1>
+        <p class="text-body-secondary">@Model.Message</p>
+
+        @if (!string.IsNullOrEmpty(Model.CorrelationId))
+        {
+            <p class="small mb-4">
+                Reference: <code class="user-select-all">@Model.CorrelationId</code>
+            </p>
+        }
+
+        <a class="btn btn-primary" href="~/">Go to dashboard</a>
+    </div>
+</div>

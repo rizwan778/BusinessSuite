@@ -1,0 +1,70 @@
+@model SupplierDetailsViewModel
+@{
+    var supplier = Model.Supplier;
+    var stats = Model.Statistics;
+    ViewData.SetPageTitle(supplier.Name);
+}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <h2 class="h5 mb-0">@supplier.Name <span class="badge @(supplier.IsActive ? "text-bg-success" : "text-bg-secondary") align-middle">@(supplier.IsActive ? "Active" : "Inactive")</span></h2>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@supplier.Id" class="btn btn-primary">Edit</a>
+        <form asp-action="SetStatus" asp-route-id="@supplier.Id" method="post">
+            <input type="hidden" name="isActive" value="@((!supplier.IsActive).ToString().ToLowerInvariant())" />
+            <button class="btn @(supplier.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">@(supplier.IsActive ? "Deactivate" : "Activate")</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Basic information</h3>
+        <dl class="row mb-0 small"><dt class="col-5">Name</dt><dd class="col-7">@supplier.Name</dd><dt class="col-5">Contact person</dt><dd class="col-7">@(supplier.ContactPerson ?? "—")</dd><dt class="col-5">Status</dt><dd class="col-7">@(supplier.IsActive ? "Active" : "Inactive")</dd></dl>
+    </div></div></div>
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Contact &amp; address</h3>
+        <dl class="row mb-0 small"><dt class="col-4">Phone</dt><dd class="col-8">@(supplier.Phone ?? "—")</dd><dt class="col-4">E-mail</dt><dd class="col-8">@(supplier.Email ?? "—")</dd><dt class="col-4">Address</dt><dd class="col-8">@(supplier.Address ?? "—")</dd></dl>
+    </div></div></div>
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <h3 class="h6">Purchases</h3>
+        <dl class="row mb-0 small">
+            <dt class="col-7">Purchases</dt><dd class="col-5 text-end">@stats.PurchaseCount</dd>
+            <dt class="col-7">Total purchases</dt><dd class="col-5 text-end">@stats.TotalPurchases.ToString("N2")</dd>
+            <dt class="col-7">Paid</dt><dd class="col-5 text-end">@stats.AmountPaid.ToString("N2")</dd>
+            <dt class="col-7 fw-semibold">Outstanding payable</dt><dd class="col-5 text-end fw-semibold">@stats.Outstanding.ToString("N2")</dd>
+            <dt class="col-7">Last purchase</dt><dd class="col-5 text-end">@(stats.LastPurchaseDate?.ToString("d") ?? "—")</dd>
+        </dl>
+    </div></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7"><div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center"><h3 class="h6 mb-0">Purchase history</h3>
+            <div class="d-flex gap-2"><a asp-controller="Purchases" asp-action="Index" asp-route-supplierId="@supplier.Id" class="btn btn-sm btn-outline-secondary">All purchases</a>
+                <a asp-controller="Purchases" asp-action="Create" class="btn btn-sm btn-primary">New purchase</a></div></div>
+        <div class="table-responsive"><table class="table align-middle mb-0">
+            <thead><tr><th>Number</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var purchase in Model.Purchases)
+                {
+                    <tr><td><a asp-controller="Purchases" asp-action="Details" asp-route-id="@purchase.Id" class="text-decoration-none">@purchase.Number</a></td><td>@purchase.PurchaseDate.ToString("d")</td>
+                        <td class="text-end">@purchase.GrandTotal.ToString("N2")</td><td>@purchase.Status</td></tr>
+                }
+                @if (Model.Purchases.Count == 0) { <tr><td colspan="4" class="text-center text-body-secondary py-3">No purchases from this supplier yet.</td></tr> }
+            </tbody></table></div>
+    </div></div>
+    <div class="col-lg-5"><div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent"><h3 class="h6 mb-0">Recent transactions</h3></div>
+        <ul class="list-group list-group-flush">
+            @foreach (var transaction in Model.Transactions)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><span class="badge @(transaction.Type == "Return" ? "text-bg-warning" : "text-bg-primary")">@transaction.Type</span>
+                        <a asp-controller="Purchases" asp-action="Details" asp-route-id="@transaction.PurchaseId" class="text-decoration-none ms-1">@transaction.Reference</a>
+                        <span class="small text-body-secondary">· @transaction.Date.ToString("d") · @transaction.Info</span></span>
+                    <span>@(transaction.Amount?.ToString("N2") ?? "")</span>
+                </li>
+            }
+            @if (Model.Transactions.Count == 0) { <li class="list-group-item text-body-secondary">No transactions yet.</li> }
+        </ul>
+    </div></div>
+</div>

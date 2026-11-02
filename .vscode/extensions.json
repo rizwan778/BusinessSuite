@@ -1,0 +1,9 @@
+{
+  // VS Code suggests these extensions when the folder is opened.
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "editorconfig.editorconfig",
+    "ms-mssql.mssql"
+  ]
+}

@@ -1,0 +1,4 @@
+@* Purchase status and payment status badges. Model: (PurchaseStatus, PaymentStatus). *@
+@model (PurchaseStatus Status, PaymentStatus Payment)
+<span class="badge @(Model.Status switch { PurchaseStatus.Received => "text-bg-success", PurchaseStatus.Cancelled => "text-bg-secondary", PurchaseStatus.Draft => "text-bg-light border", PurchaseStatus.PartiallyReceived => "text-bg-info", _ => "text-bg-warning" })">@Model.Status</span>
+<span class="badge @(Model.Payment switch { PaymentStatus.Paid => "text-bg-success", PaymentStatus.PartiallyPaid => "text-bg-warning", _ => "text-bg-danger" })">@Model.Payment</span>

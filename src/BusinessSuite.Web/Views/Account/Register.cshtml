@@ -1,0 +1,57 @@
+@model RegisterViewModel
+@{
+    Layout = "_MinimalLayout";
+    ViewData.SetPageTitle("Sign up");
+}
+
+@*
+    The form is sent as JSON to POST /api/v1/auth/register by wwwroot/js/register.js, which shows
+    the API's errors here and returns to the sign-in page when the account has been created.
+    The submit button stays disabled until that script has loaded.
+*@
+<div class="auth-card card border-0 shadow-sm">
+    <div class="card-body p-4 p-sm-5">
+        <div class="text-center mb-4">
+            <img src="~/img/logo-mark.svg" alt="" width="48" height="48" class="mb-3" />
+            <h1 class="h4 mb-1">Create an account</h1>
+            <p class="text-body-secondary small mb-0">for @AppOptions.Value.ProductName</p>
+        </div>
+
+        <noscript>
+            <div class="alert alert-warning py-2 small" role="alert">JavaScript is required to create an account.</div>
+        </noscript>
+
+        <form method="post" novalidate
+              data-register-api="@Url.Content("~/api/v1/auth/register")"
+              data-login-url="@Url.Action("Login", "Account", new { signedUp = true })">
+            <div class="alert alert-danger py-2 small d-none" role="alert" tabindex="-1" data-register-error></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="email" autofocus />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" aria-describedby="password-hint" />
+                <div id="password-hint" class="form-text">@Model.PasswordHint</div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" disabled data-register-submit>
+                <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-register-spinner></span>
+                <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Sign up
+            </button>
+        </form>
+
+        <p class="text-body-secondary small text-center mt-4 mb-0">
+            Already have an account? <a asp-controller="Account" asp-action="Login">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/register.js" asp-append-version="true"></script>
+}

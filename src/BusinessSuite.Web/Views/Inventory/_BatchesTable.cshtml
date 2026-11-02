@@ -1,0 +1,26 @@
+@model PagedResult<BatchDetails>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Batch</th><th>Product</th><th>Manufactured</th><th>Expiry</th><th class="text-end">On hand</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var batch in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="BatchDetails" asp-route-id="@batch.Id" class="fw-semibold text-decoration-none">@batch.BatchNumber</a></td>
+                    <td>@batch.ProductName <code>@(batch.VariantSku ?? batch.Sku)</code></td>
+                    <td>@(batch.ManufactureDate?.ToString("d") ?? "—")</td>
+                    <td>@(batch.ExpiryDate?.ToString("d") ?? "—")</td>
+                    <td class="text-end">@batch.QuantityOnHand.ToString("0.####")</td>
+                    <td>
+                        @if (batch.IsExpired) { <span class="badge text-bg-danger">Expired</span> }
+                        else if (batch.DaysToExpiry is { } days) { <span class="badge @(days <= 30 ? "text-bg-warning" : "text-bg-success")">@days days left</span> }
+                        else { <span class="badge text-bg-light">No expiry</span> }
+                        @if (!batch.IsActive) { <span class="badge text-bg-secondary">Inactive</span> }
+                    </td>
+                </tr>
+            }
+            @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No batches found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model)" />

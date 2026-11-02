@@ -1,0 +1,28 @@
+# Local SQL Server 2022 (Developer edition: free for development and testing) for machines
+# without LocalDB. Data survives restarts in the named volume.
+#
+# PowerShell:
+#   $env:MSSQL_SA_PASSWORD = "<choose a strong password>"
+#   docker compose -f tools/sqlserver/docker-compose.yml up -d
+# Bash:
+#   export MSSQL_SA_PASSWORD='<choose a strong password>'
+#   docker compose -f tools/sqlserver/docker-compose.yml up -d
+#
+# Then store the connection string as a user secret (never in a committed file):
+#   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=BusinessSuite_Dev;User ID=sa;Password=<same password>;TrustServerCertificate=True" --project src/BusinessSuite.Web
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: businesssuite-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?Set the MSSQL_SA_PASSWORD environment variable first}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - businesssuite-sqlserver-data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  businesssuite-sqlserver-data:

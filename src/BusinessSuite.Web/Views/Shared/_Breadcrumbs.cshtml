@@ -1,0 +1,24 @@
+@{
+    var crumbs = ViewData.GetBreadcrumbs();
+}
+@if (crumbs.Count > 0)
+{
+    <nav aria-label="Breadcrumb" class="app-breadcrumbs">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-area="" asp-controller="Dashboard" asp-action="Index" aria-label="Home"><i class="bi bi-house-door" aria-hidden="true"></i></a>
+            </li>
+            @foreach (var crumb in crumbs)
+            {
+                if (crumb.Url is null)
+                {
+                    <li class="breadcrumb-item active" aria-current="page">@crumb.Title</li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item"><a href="@crumb.Url">@crumb.Title</a></li>
+                }
+            }
+        </ol>
+    </nav>
+}

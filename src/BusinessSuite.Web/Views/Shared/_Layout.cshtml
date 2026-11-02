@@ -1,0 +1,60 @@
+@*
+    Application shell for signed-in pages:
+    sidebar (Components/Sidebar) | top bar (_Topbar) | breadcrumbs | alerts | page content.
+    Content-Security-Policy is strict: no inline <script> or style="..." attributes.
+*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData.GetPageTitle() · @AppOptions.Value.ProductName</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="app-body">
+    <a class="visually-hidden-focusable app-skip-link" href="#main-content">Skip to main content</a>
+
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">
+                <div class="offcanvas-header app-sidebar-header">
+                    <span class="app-brand" id="appSidebarLabel">
+                        <img src="~/img/logo-mark.svg" alt="" width="28" height="28" />
+                        <span>@AppOptions.Value.ProductName</span>
+                    </span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close menu"></button>
+                </div>
+                <div class="offcanvas-body app-sidebar-body">
+                    <a class="app-brand d-none d-lg-flex" asp-controller="Dashboard" asp-action="Index" asp-area="">
+                        <img src="~/img/logo-mark.svg" alt="" width="28" height="28" />
+                        <span>@AppOptions.Value.ProductName</span>
+                    </a>
+                    <vc:sidebar></vc:sidebar>
+                </div>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <partial name="_Topbar" />
+
+            <main id="main-content" class="app-content" tabindex="-1">
+                <partial name="_Breadcrumbs" />
+                <partial name="_Alerts" />
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span>&copy; @DateTime.UtcNow.Year @AppOptions.Value.ProductName</span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

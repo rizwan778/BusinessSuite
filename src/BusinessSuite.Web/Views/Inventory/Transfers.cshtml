@@ -1,0 +1,32 @@
+@model PagedResult<StockTransferSummary>
+@{
+    var warehouses = (IReadOnlyList<SelectListItem>)ViewData["Warehouses"]!;
+    var selectedWarehouse = ViewData["WarehouseId"]?.ToString();
+}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input name="search" value="@(ViewData["Search"])" class="form-control w-auto" placeholder="Search number" aria-label="Search" />
+        <select name="warehouseId" class="form-select w-auto" aria-label="Warehouse"><option value="">All warehouses</option>
+            @foreach (var option in warehouses) { <option value="@option.Value" selected="@(option.Value == selectedWarehouse)">@option.Text</option> }</select>
+        <select name="status" class="form-select w-auto" asp-items="Html.GetEnumSelectList<StockTransferStatus>()" aria-label="Status"><option value="">All statuses</option></select>
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </form>
+    <a asp-action="CreateTransfer" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New transfer</a>
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Number</th><th>Date</th><th>From</th><th>To</th><th class="text-end">Items</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var transfer in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="TransferDetails" asp-route-id="@transfer.Id" class="fw-semibold text-decoration-none">@transfer.Number</a></td>
+                    <td>@transfer.TransferDate.ToString("d")</td><td>@transfer.FromWarehouseName</td><td>@transfer.ToWarehouseName</td><td class="text-end">@transfer.ItemCount</td>
+                    <td><span class="badge @(transfer.Status == StockTransferStatus.Received ? "text-bg-success" : transfer.Status == StockTransferStatus.Cancelled ? "text-bg-secondary" : "text-bg-warning")">@transfer.Status</span></td>
+                </tr>
+            }
+            @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No transfers found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model)" />

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    APPLICATION LAYER - use cases (what the system does).
+    Rule: may reference Domain only. Never reference Infrastructure or Web.
+    It defines interfaces (for example ICurrentUser) that outer layers implement.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessSuite.Domain\BusinessSuite.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Only lightweight abstractions; versions are set in Directory.Packages.props. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BusinessSuite.Tests.Unit" />
+  </ItemGroup>
+
+</Project>

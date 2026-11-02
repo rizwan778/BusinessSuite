@@ -1,0 +1,27 @@
+@model CategoryNode
+<li class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-folder2 me-1" aria-hidden="true"></i>
+            <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.Id" class="text-decoration-none">@Model.Name</a>
+            @if (!Model.IsActive) { <span class="badge text-bg-secondary ms-1">Inactive</span> }
+        </div>
+        <div class="text-nowrap">
+            <a asp-action="Create" asp-route-parentId="@Model.Id" class="btn btn-sm btn-outline-secondary" title="Add sub-category"><i class="bi bi-plus" aria-hidden="true"></i></a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <form asp-action="SetStatus" asp-route-id="@Model.Id" method="post" class="d-inline">
+                <input type="hidden" name="isActive" value="@((!Model.IsActive).ToString().ToLowerInvariant())" />
+                <button type="submit" class="btn btn-sm @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(Model.IsActive ? "Deactivate" : "Activate")</button>
+            </form>
+        </div>
+    </div>
+    @if (Model.Children.Count > 0)
+    {
+        <ul class="list-group list-group-flush mt-2 ms-4">
+            @foreach (var child in Model.Children)
+            {
+                <partial name="_CategoryNode" model="child" />
+            }
+        </ul>
+    }
+</li>

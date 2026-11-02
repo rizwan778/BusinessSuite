@@ -1,0 +1,18 @@
+@model PagedResult<BatchDetails>
+@{
+    var view = ViewData["View"]?.ToString();
+}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input name="search" value="@(ViewData["Search"])" class="form-control w-auto" placeholder="Search batch or product" aria-label="Search" />
+        <select name="view" class="form-select w-auto" aria-label="Show">
+            <option value="" selected="@string.IsNullOrEmpty(view)">All batches</option>
+            <option value="near" selected="@(view == "near")">Near expiry</option>
+            <option value="expired" selected="@(view == "expired")">Expired</option>
+        </select>
+        <input name="days" type="number" min="1" value="@(ViewData["Days"])" class="form-control w-auto" aria-label="Days for near expiry" title="Days for 'near expiry'" />
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </form>
+    <a asp-action="RegisterBatch" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Register batch</a>
+</div>
+<partial name="_BatchesTable" model="Model" />

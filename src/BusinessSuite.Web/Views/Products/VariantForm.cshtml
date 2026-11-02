@@ -1,0 +1,36 @@
+@model VariantFormModel
+@{
+    ViewData.SetPageTitle(Model.IsEdit ? "Edit variant" : "New variant");
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb(Model.ProductName ?? "Product", Url.Action("Details", "Products", new { id = Model.ProductId }));
+    ViewData.AddBreadcrumb(Model.IsEdit ? "Edit variant" : "New variant");
+}
+
+<h1 class="h4 mb-3">@(Model.IsEdit ? "Edit variant" : "New variant") <small class="text-body-secondary">of @Model.ProductName</small></h1>
+
+<form asp-action="@(Model.IsEdit ? "EditVariant" : "CreateVariant")" method="post" novalidate data-disable-on-submit>
+    <partial name="_FormErrors" />
+    <input type="hidden" asp-for="ProductId" />
+    <input type="hidden" asp-for="VariantId" />
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4"><label asp-for="Sku" class="form-label">SKU <span class="text-danger">*</span></label><input asp-for="Sku" class="form-control" maxlength="50" /></div>
+            <div class="col-md-4"><label asp-for="Barcode" class="form-label"></label><input asp-for="Barcode" class="form-control" maxlength="50" /></div>
+            <div class="col-md-4"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" maxlength="200" /></div>
+            <div class="col-md-4"><label asp-for="CostPrice" class="form-label"></label><input asp-for="CostPrice" type="number" step="any" min="0" class="form-control" /></div>
+            <div class="col-md-4"><label asp-for="SalePrice" class="form-label"></label><input asp-for="SalePrice" type="number" step="any" min="0" class="form-control" /></div>
+            <div class="col-md-4"><label asp-for="ReorderLevel" class="form-label"></label><input asp-for="ReorderLevel" type="number" step="any" min="0" class="form-control" /></div>
+        </div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">Variant attributes</h2>
+        <partial name="_AttributeFields" model="Model.Attributes" />
+    </div></div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Details" asp-route-id="@Model.ProductId" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>

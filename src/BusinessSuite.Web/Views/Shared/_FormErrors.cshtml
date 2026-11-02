@@ -1,0 +1,21 @@
+@*
+    Form-level errors (ModelState key ""), e.g. "Invalid e-mail address or password" or a
+    failed Result added with AppController.AddErrorToModelState(...).
+    Field errors are shown next to each field with asp-validation-for.
+    Usage inside a form:  <partial name="_FormErrors" />
+*@
+@{
+    var errors = ViewData.ModelState.TryGetValue(string.Empty, out var entry) ? entry.Errors : null;
+}
+@if (errors is { Count: > 0 })
+{
+    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle mt-1" aria-hidden="true"></i>
+        <div>
+            @foreach (var error in errors)
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    </div>
+}

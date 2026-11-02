@@ -1,0 +1,31 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    if (string.IsNullOrEmpty(ViewData.GetPageTitle()))
+    {
+        ViewData.SetPageTitle("Purchases");
+    }
+
+    var current = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var returnsTab = current == "Returns";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-0">Purchases</h1>
+        <p class="text-body-secondary small mb-0">Purchase orders, receiving goods into stock, and returns to suppliers.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New purchase</a>
+</div>
+
+<div class="alert alert-warning py-2 small d-flex gap-2" role="note">
+    <i class="bi bi-info-circle mt-1" aria-hidden="true"></i>
+    <div><strong>Preview.</strong> The purchasing backend is not built yet: purchases are kept in memory (lost on restart) and receiving or returning goods
+        does <strong>not</strong> change inventory. Stock will only change through the backend receiving operation once it exists.</div>
+</div>
+
+<ul class="section-tabs">
+    <li><a class="section-tab @(returnsTab ? null : "active")" asp-controller="Purchases" asp-action="Index"><i class="bi bi-bag-check me-1" aria-hidden="true"></i>Purchases</a></li>
+    <li><a class="section-tab @(returnsTab ? "active" : null)" asp-controller="Purchases" asp-action="Returns"><i class="bi bi-arrow-return-left me-1" aria-hidden="true"></i>Returns</a></li>
+</ul>
+
+@RenderBody()

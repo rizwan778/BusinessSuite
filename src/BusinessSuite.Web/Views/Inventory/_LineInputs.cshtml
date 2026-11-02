@@ -1,0 +1,35 @@
+@* Lines typed by SKU (and batch number); blank lines are ignored. ViewData["Direction"] = true shows increase/decrease and unit cost (adjustments). *@
+@model IReadOnlyList<StockLineInput>
+@{
+    var adjusting = ViewData["Direction"] is true;
+}
+<div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+        <thead><tr><th>SKU (product or variant)</th><th>Batch no.</th>@if (adjusting) { <th>Change</th> }<th>Quantity</th>@if (adjusting) { <th>Unit cost</th><th>Notes</th> }</tr></thead>
+        <tbody>
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                var line = Model[i];
+                <tr>
+                    <td><input name="Lines[@i].Sku" value="@line.Sku" class="form-control form-control-sm" aria-label="SKU line @(i + 1)" /></td>
+                    <td><input name="Lines[@i].BatchNumber" value="@line.BatchNumber" class="form-control form-control-sm" aria-label="Batch line @(i + 1)" /></td>
+                    @if (adjusting)
+                    {
+                        <td>
+                            <select name="Lines[@i].Direction" class="form-select form-select-sm" aria-label="Direction line @(i + 1)">
+                                <option value="in" selected="@(line.Direction != "out")">Increase</option>
+                                <option value="out" selected="@(line.Direction == "out")">Decrease</option>
+                            </select>
+                        </td>
+                    }
+                    <td><input name="Lines[@i].Quantity" type="number" step="any" min="0" value="@(line.Quantity?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Quantity line @(i + 1)" /></td>
+                    @if (adjusting)
+                    {
+                        <td><input name="Lines[@i].UnitCost" type="number" step="any" min="0" value="@(line.UnitCost?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Unit cost line @(i + 1)" /></td>
+                        <td><input name="Lines[@i].Notes" value="@line.Notes" class="form-control form-control-sm" aria-label="Notes line @(i + 1)" /></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

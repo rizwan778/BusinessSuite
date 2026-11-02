@@ -1,0 +1,20 @@
+@model PagedResult<PurchaseReturnDetails>
+@{ ViewData.SetPageTitle("Purchase returns"); }
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Return no.</th><th>Purchase</th><th>Supplier</th><th>Date</th><th>Items</th><th>Reason</th></tr></thead>
+        <tbody>
+            @foreach (var purchaseReturn in Model.Items)
+            {
+                <tr>
+                    <td class="fw-semibold">@purchaseReturn.Number</td>
+                    <td><a asp-action="Details" asp-route-id="@purchaseReturn.PurchaseId" class="text-decoration-none">@purchaseReturn.PurchaseNumber</a></td>
+                    <td>@purchaseReturn.SupplierName</td><td>@purchaseReturn.ReturnedOn.ToString("d")</td>
+                    <td class="small">@string.Join(", ", purchaseReturn.Lines.Select(line => $"{line.Sku} x {line.Quantity:0.####}"))</td><td>@purchaseReturn.Reason</td>
+                </tr>
+            }
+            @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No returns recorded.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model)" />

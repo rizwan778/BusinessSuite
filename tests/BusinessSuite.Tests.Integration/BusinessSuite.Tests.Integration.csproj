@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    INTEGRATION TESTS - run the real web application in memory (WebApplicationFactory)
+    and, when a SQL Server is configured, against a real throw-away database.
+    See tests/README.md for how SQL Server tests are enabled.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BusinessSuite.Web\BusinessSuite.Web.csproj" />
+    <ProjectReference Include="..\..\src\BusinessSuite.Infrastructure\BusinessSuite.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

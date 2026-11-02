@@ -1,0 +1,82 @@
+@model ProductFormModel
+@{
+    ViewData.SetPageTitle(Model.IsEdit ? "Edit product" : "New product");
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb(Model.IsEdit ? "Edit" : "New");
+}
+
+<h1 class="h4 mb-3">@(Model.IsEdit ? "Edit product" : "New product")</h1>
+
+<form asp-action="@(Model.IsEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" novalidate data-disable-on-submit>
+    <partial name="_FormErrors" />
+    <input type="hidden" name="ReloadSchema" value="false" />
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">General</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
+                <input asp-for="Name" class="form-control" maxlength="200" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="CategoryId" class="form-label">Category</label>
+                <select asp-for="CategoryId" class="form-select" data-reload-schema asp-items="Model.CategoryOptions">
+                    <option value="">No category</option>
+                </select>
+                <div class="form-text">The attribute fields below follow the category.</div>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Sku" class="form-label">SKU <span class="text-danger">*</span></label>
+                <input asp-for="Sku" class="form-control" maxlength="50" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Barcode" class="form-label"></label>
+                <input asp-for="Barcode" class="form-control" maxlength="50" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="BaseUnitId" class="form-label">Unit of measure <span class="text-danger">*</span></label>
+                <select asp-for="BaseUnitId" class="form-select" asp-items="Model.UnitOptions">
+                    <option value="@Guid.Empty">Select a unit…</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="2" maxlength="1000"></textarea>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">Pricing &amp; stock</h2>
+        <div class="row g-3">
+            <div class="col-md-4"><label asp-for="CostPrice" class="form-label"></label><input asp-for="CostPrice" type="number" step="any" min="0" class="form-control" /></div>
+            <div class="col-md-4"><label asp-for="SalePrice" class="form-label"></label><input asp-for="SalePrice" type="number" step="any" min="0" class="form-control" /></div>
+            <div class="col-md-4"><label asp-for="ReorderLevel" class="form-label"></label><input asp-for="ReorderLevel" type="number" step="any" min="0" class="form-control" /></div>
+            <div class="col-12 d-flex flex-wrap gap-4">
+                <div class="form-check"><input asp-for="HasVariants" class="form-check-input" /><label asp-for="HasVariants" class="form-check-label">Has variants (size, colour…)</label></div>
+                <div class="form-check"><input asp-for="TracksStock" class="form-check-input" /><label asp-for="TracksStock" class="form-check-label">Track stock</label></div>
+                <div class="form-check"><input asp-for="TracksBatches" class="form-check-input" /><label asp-for="TracksBatches" class="form-check-label">Track batches</label></div>
+                <div class="form-check"><input asp-for="RequiresExpiry" class="form-check-input" /><label asp-for="RequiresExpiry" class="form-check-label">Has expiry date</label></div>
+                <div class="form-check"><input asp-for="AllowNegativeStock" class="form-check-input" /><label asp-for="AllowNegativeStock" class="form-check-label">Allow negative stock</label></div>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">Attributes</h2>
+        <partial name="_AttributeFields" model="Model.Attributes" />
+        @if (Model.HasVariants)
+        {
+            <p class="form-text mt-2 mb-0">Variant-level attributes (such as size or colour) are entered on each variant after saving.</p>
+        }
+    </div></div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="@(Model.IsEdit ? "Details" : "Index")" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/js/products.js" asp-append-version="true"></script>
+}

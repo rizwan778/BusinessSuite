@@ -1,0 +1,34 @@
+@model BatchDetailsViewModel
+@{ var batch = Model.Batch; }
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Batch @batch.BatchNumber
+            <span class="badge @(batch.IsActive ? "text-bg-success" : "text-bg-secondary") align-middle">@(batch.IsActive ? "Active" : "Inactive")</span>
+            @if (batch.IsExpired) { <span class="badge text-bg-danger align-middle">Expired</span> }</h2>
+        <div class="small text-body-secondary">@batch.ProductName <code>@(batch.VariantSku ?? batch.Sku)</code></div>
+    </div>
+    <form asp-action="SetBatchStatus" asp-route-id="@batch.Id" method="post">
+        <input type="hidden" name="isActive" value="@((!batch.IsActive).ToString().ToLowerInvariant())" />
+        <button class="btn @(batch.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">@(batch.IsActive ? "Deactivate" : "Activate")</button>
+    </form>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><dl class="row mb-0 small">
+        <dt class="col-6">Manufactured</dt><dd class="col-6">@(batch.ManufactureDate?.ToString("d") ?? "—")</dd>
+        <dt class="col-6">Expiry</dt><dd class="col-6">@(batch.ExpiryDate?.ToString("d") ?? "—")</dd>
+        <dt class="col-6">Days to expiry</dt><dd class="col-6">@(batch.DaysToExpiry?.ToString() ?? "—")</dd>
+        <dt class="col-6">Quantity on hand</dt><dd class="col-6">@batch.QuantityOnHand.ToString("0.####")</dd>
+    </dl></div></div></div>
+    <div class="col-lg-8"><div class="card border-0 shadow-sm"><div class="card-header bg-transparent"><h3 class="h6 mb-0">Stock by warehouse</h3></div><div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>Warehouse</th><th class="text-end">On hand</th><th class="text-end">Reserved</th><th class="text-end">Available</th><th class="text-end">Avg. cost</th></tr></thead>
+            <tbody>
+                @foreach (var line in Model.Stock)
+                {
+                    <tr><td>@line.WarehouseName</td><td class="text-end">@line.OnHand.ToString("0.####")</td><td class="text-end">@line.Reserved.ToString("0.####")</td><td class="text-end">@line.Available.ToString("0.####")</td><td class="text-end">@line.AverageCost.ToString("N2")</td></tr>
+                }
+                @if (Model.Stock.Count == 0) { <tr><td colspan="5" class="text-center text-body-secondary py-3">No stock in this batch.</td></tr> }
+            </tbody>
+        </table>
+    </div></div></div>
+</div>

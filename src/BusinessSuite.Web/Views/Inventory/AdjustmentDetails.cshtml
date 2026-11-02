@@ -1,0 +1,27 @@
+@model StockAdjustmentDetails
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Adjustment @Model.Number <span class="badge @(Model.Status == StockAdjustmentStatus.Posted ? "text-bg-success" : Model.Status == StockAdjustmentStatus.Draft ? "text-bg-warning" : "text-bg-secondary") align-middle">@Model.Status</span></h2>
+        <div class="small text-body-secondary">@Model.WarehouseName · @Model.AdjustmentDate.ToString("d") · @Model.Reason@(string.IsNullOrEmpty(Model.Notes) ? "" : " · " + Model.Notes)</div>
+    </div>
+    @if (Model.Status == StockAdjustmentStatus.Draft)
+    {
+        <div class="d-flex gap-2">
+            <form asp-action="PostAdjustment" asp-route-id="@Model.Id" method="post"><button class="btn btn-primary" type="submit">Post</button></form>
+            <form asp-action="CancelAdjustment" asp-route-id="@Model.Id" method="post"><button class="btn btn-outline-danger" type="submit">Cancel</button></form>
+        </div>
+    }
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Product</th><th>SKU</th><th>Batch</th><th class="text-end">Change</th><th class="text-end">Unit cost</th><th>Notes</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr><td>@item.ProductName</td><td><code>@(item.VariantSku ?? item.Sku)</code></td><td>@(item.BatchNumber ?? "—")</td>
+                    <td class="text-end @(item.QuantityDifference < 0 ? "text-danger" : "text-success")">@(item.QuantityDifference > 0 ? "+" : "")@item.QuantityDifference.ToString("0.####")</td>
+                    <td class="text-end">@(item.UnitCost?.ToString("N2") ?? "—")</td><td>@(item.Notes ?? "")</td></tr>
+            }
+        </tbody>
+    </table>
+</div></div>

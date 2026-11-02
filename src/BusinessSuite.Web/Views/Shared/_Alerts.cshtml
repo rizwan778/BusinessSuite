@@ -1,0 +1,20 @@
+@* One-time messages queued with NotifySuccess/NotifyError/... in AppController. *@
+@foreach (var type in Enum.GetValues<AlertType>())
+{
+    var icon = type switch
+    {
+        AlertType.Success => "check-circle",
+        AlertType.Warning => "exclamation-triangle",
+        AlertType.Danger => "x-octagon",
+        _ => "info-circle",
+    };
+
+    foreach (var message in TempData.TakeAlerts(type))
+    {
+        <div class="alert alert-@type.ToString().ToLowerInvariant() alert-dismissible fade show d-flex align-items-start gap-2" role="alert">
+            <i class="bi bi-@icon mt-1" aria-hidden="true"></i>
+            <div>@message</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}

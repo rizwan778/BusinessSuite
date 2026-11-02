@@ -1,0 +1,36 @@
+<Project>
+  <!--
+    Shared build settings for EVERY project in this repository.
+    MSBuild imports this file automatically (it walks up the folder tree).
+    Change a setting here once instead of editing six .csproj files.
+  -->
+
+  <PropertyGroup Label="Target framework and language">
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Code quality">
+    <!-- Nullable-reference warnings are bugs waiting to happen: fail the build on them. -->
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
+    <!-- Report .editorconfig rules marked ":warning" during `dotnet build`, not only in the IDE. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- XML documentation is generated so IntelliSense shows the comments written on framework types. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591 = "missing XML comment". Comments are encouraged, not forced. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Product information">
+    <Product>BusinessSuite</Product>
+    <Company>BusinessSuite</Company>
+    <!-- Bump this when you release. It is shown on the dashboard and in logs. -->
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <!-- Reproducible, path-independent builds on GitHub Actions. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

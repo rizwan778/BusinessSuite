@@ -1,0 +1,49 @@
+{
+  // Terminal > Run Task... in VS Code. "build" is also used by F5 (launch.json).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/BusinessSuite.sln", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "test",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/BusinessSuite.sln"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "watch (hot reload)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["watch", "run", "--project", "${workspaceFolder}/src/BusinessSuite.Web/BusinessSuite.Web.csproj", "--launch-profile", "https"],
+      "problemMatcher": "$msCompile",
+      "isBackground": true
+    },
+    {
+      "label": "db: apply migrations",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "ef", "database", "update",
+        "--project", "${workspaceFolder}/src/BusinessSuite.Infrastructure",
+        "--startup-project", "${workspaceFolder}/src/BusinessSuite.Web"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "tools: restore (dotnet-ef)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["tool", "restore"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}

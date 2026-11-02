@@ -1,0 +1,44 @@
+@model StockOverviewViewModel
+@{
+    ViewData.SetPageTitle("Inventory");
+}
+
+<form method="get" class="card card-body border-0 shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4"><label class="form-label small" for="search">Search product, SKU or barcode</label><input id="search" name="search" value="@Model.Search" class="form-control" /></div>
+        <div class="col-md-4">
+            <label class="form-label small" for="warehouseId">Warehouse</label>
+            <select id="warehouseId" name="warehouseId" class="form-select">
+                <option value="">All warehouses</option>
+                @foreach (var option in Model.Warehouses) { <option value="@option.Value" selected="@(option.Value == Model.WarehouseId?.ToString())">@option.Text</option> }
+            </select>
+        </div>
+        <div class="col-md-2"><div class="form-check mb-2"><input type="checkbox" id="hideEmpty" name="hideEmpty" value="true" class="form-check-input" checked="@Model.HideEmpty" /><label class="form-check-label small" for="hideEmpty">Hide empty</label></div></div>
+        <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-primary flex-grow-1" type="submit">Filter</button><a asp-action="Index" class="btn btn-outline-secondary" title="Clear"><i class="bi bi-x-lg" aria-hidden="true"></i></a></div>
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Warehouse</th><th class="text-end">On hand</th><th class="text-end">Reserved</th><th class="text-end">Available</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                var balance = row.Balance;
+                <tr>
+                    <td><a asp-controller="Products" asp-action="Details" asp-route-id="@balance.ProductId" class="text-decoration-none">@balance.ProductName</a>
+                        @if (balance.BatchNumber is not null) { <div class="small text-body-secondary">Batch @balance.BatchNumber@(balance.ExpiryDate is { } expiry ? $" · exp {expiry:d}" : "")</div> }</td>
+                    <td><code>@(balance.VariantSku ?? balance.Sku)</code></td>
+                    <td>@(row.CategoryName ?? "—")</td>
+                    <td>@balance.WarehouseName</td>
+                    <td class="text-end">@balance.OnHand.ToString("0.####") @balance.UnitCode</td>
+                    <td class="text-end">@balance.Reserved.ToString("0.####")</td>
+                    <td class="text-end">@balance.Available.ToString("0.####")</td>
+                    <td><span class="badge @(row.Status == "In stock" ? "text-bg-success" : row.Status == "Low stock" ? "text-bg-warning" : "text-bg-danger")">@row.Status</span></td>
+                </tr>
+            }
+            @if (Model.Rows.Count == 0) { <tr><td colspan="8" class="text-center text-body-secondary py-4">No stock found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model.Page)" />

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    WEB LAYER (composition root) - ASP.NET Core MVC: controllers, Razor views,
+    view models, filters, middleware and the place where all layers are wired together.
+    Rule: controllers stay thin and call the Application layer.
+  -->
+
+  <PropertyGroup>
+    <!-- Identifies this app's local secret store (`dotnet user-secrets`). Do not change it casually. -->
+    <UserSecretsId>BusinessSuite-Web-7d3f2a6e-4c1b-4e0f-9a51-2b8d6c0e9f14</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessSuite.Application\BusinessSuite.Application.csproj" />
+    <ProjectReference Include="..\BusinessSuite.Infrastructure\BusinessSuite.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Required by the `dotnet ef` command-line tool at design time only; never shipped. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- OpenAPI document for /api (built-in generator) and the Swagger UI page that displays it. -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Developer notes inside wwwroot (e.g. lib/README.md) are documentation, not public files. -->
+    <Content Remove="wwwroot\**\*.md" />
+    <None Include="wwwroot\**\*.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BusinessSuite.Tests.Unit" />
+    <InternalsVisibleTo Include="BusinessSuite.Tests.Integration" />
+  </ItemGroup>
+
+</Project>

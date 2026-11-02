@@ -1,0 +1,68 @@
+@model PurchaseFormModel
+@{ ViewData.SetPageTitle("New purchase"); }
+<form asp-action="Create" method="post" novalidate data-disable-on-submit>
+    <partial name="_FormErrors" />
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h2 class="h5">New purchase</h2>
+        <div class="row g-3">
+            <div class="col-md-4"><label asp-for="SupplierId" class="form-label">Supplier <span class="text-danger">*</span></label>
+                <select asp-for="SupplierId" class="form-select" asp-items="Model.Suppliers"><option value="@Guid.Empty">Select a supplier…</option></select></div>
+            <div class="col-md-4"><label asp-for="WarehouseId" class="form-label">Receive into warehouse <span class="text-danger">*</span></label>
+                <select asp-for="WarehouseId" class="form-select" asp-items="Model.Warehouses"><option value="@Guid.Empty">Select a warehouse…</option></select></div>
+            <div class="col-md-4"><label asp-for="PurchaseDate" class="form-label">Purchase date</label><input asp-for="PurchaseDate" type="date" class="form-control" /></div>
+        </div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+        <h3 class="h6">Items <span class="text-body-secondary small fw-normal">enter the SKU of a product or variant; blank lines are ignored</span></h3>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>SKU</th><th>Quantity</th><th>Purchase price</th><th>Discount %</th><th>Tax %</th></tr></thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Lines.Count; i++)
+                    {
+                        var line = Model.Lines[i];
+                        <tr>
+                            <td><input name="Lines[@i].Sku" value="@line.Sku" class="form-control form-control-sm" aria-label="SKU line @(i + 1)" /></td>
+                            <td><input name="Lines[@i].Quantity" type="number" step="any" min="0" value="@(line.Quantity?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Quantity line @(i + 1)" /></td>
+                            <td><input name="Lines[@i].UnitPrice" type="number" step="any" min="0" value="@(line.UnitPrice?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Price line @(i + 1)" /></td>
+                            <td><input name="Lines[@i].DiscountPercent" type="number" step="any" min="0" max="100" value="@(line.DiscountPercent?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Discount line @(i + 1)" /></td>
+                            <td><input name="Lines[@i].TaxPercent" type="number" step="any" min="0" value="@(line.TaxPercent?.ToString(CultureInfo.InvariantCulture))" class="form-control form-control-sm" aria-label="Tax line @(i + 1)" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="form-text">Tax is entered per line as a percentage (no tax module yet).</div>
+    </div></div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        </div></div></div>
+        <div class="col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <label asp-for="OrderDiscount" class="form-label">Order discount (amount)</label><input asp-for="OrderDiscount" type="number" step="any" min="0" class="form-control mb-3" />
+            @if (Model.Totals is { } totals)
+            {
+                <dl class="row mb-0 small">
+                    <dt class="col-7">Subtotal (after line discounts)</dt><dd class="col-5 text-end">@totals.Subtotal.ToString("N2")</dd>
+                    <dt class="col-7">Order discount</dt><dd class="col-5 text-end">- @totals.OrderDiscount.ToString("N2")</dd>
+                    <dt class="col-7">Tax</dt><dd class="col-5 text-end">@totals.Tax.ToString("N2")</dd>
+                    <dt class="col-7 fs-6">Grand total</dt><dd class="col-5 text-end fs-6 fw-bold">@totals.GrandTotal.ToString("N2")</dd>
+                </dl>
+            }
+            else
+            {
+                <p class="text-body-secondary small mb-0">Press <em>Calculate</em> to see the subtotal and grand total (calculated on the server).</p>
+            }
+        </div></div></div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="submit" name="submission" value="calculate" class="btn btn-outline-secondary">Calculate totals</button>
+        <button type="submit" name="submission" value="draft" class="btn btn-outline-primary">Save as draft</button>
+        <button type="submit" name="submission" value="submit" class="btn btn-primary">Submit purchase</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </div>
+    <p class="form-text mt-2">Saving or submitting does not change stock. Stock increases only when goods are received.</p>
+</form>

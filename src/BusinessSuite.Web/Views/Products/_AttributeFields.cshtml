@@ -1,0 +1,77 @@
+@*
+    Dynamic attribute fields, generated from the organization's attribute schema: one input per attribute, chosen by its data type.
+    Nothing here is industry specific. Posted as Attributes[i].* (the server rebuilds the schema and validates every value).
+*@
+@model IReadOnlyList<AttributeInput>
+@if (Model.Count == 0)
+{
+    <p class="text-body-secondary small mb-0">No attributes are defined for this category.
+        <a asp-controller="Attributes" asp-action="Index">Manage attributes</a></p>
+}
+else
+{
+    <div class="row g-3">
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            var input = Model[i];
+            var prefix = $"Attributes[{i}]";
+            var id = $"attr-{i}";
+            <div class="@(input.DataType == AttributeDataType.MultiSelect ? "col-12" : "col-md-6")">
+                <input type="hidden" name="@(prefix).Code" value="@input.Code" />
+                <label class="form-label" for="@id">@input.Name @if (input.IsRequired) { <span class="text-danger" aria-hidden="true"> *</span> }</label>
+                @switch (input.DataType)
+                {
+                    case AttributeDataType.Text:
+                        <input id="@id" name="@(prefix).Text" value="@input.Text" class="form-control" maxlength="500" />
+                        break;
+                    case AttributeDataType.Number:
+                    case AttributeDataType.Decimal:
+                        <div class="input-group">
+                            <input id="@id" name="@(prefix).Number" type="number" step="@(input.DataType == AttributeDataType.Number ? "1" : "any")"
+                                   value="@(input.Number?.ToString(CultureInfo.InvariantCulture))" class="form-control" />
+                            @if (!string.IsNullOrEmpty(input.UnitLabel))
+                            {
+                                <span class="input-group-text">@input.UnitLabel</span>
+                            }
+                        </div>
+                        break;
+                    case AttributeDataType.Date:
+                        <input id="@id" name="@(prefix).Date" type="date" value="@(input.Date?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))" class="form-control" />
+                        break;
+                    case AttributeDataType.Boolean:
+                        <select id="@id" name="@(prefix).Boolean" class="form-select">
+                            <option value="" selected="@(input.Boolean is null)">—</option>
+                            <option value="true" selected="@(input.Boolean == true)">Yes</option>
+                            <option value="false" selected="@(input.Boolean == false)">No</option>
+                        </select>
+                        break;
+                    case AttributeDataType.Dropdown:
+                        <select id="@id" name="@(prefix).OptionId" class="form-select">
+                            <option value="">—</option>
+                            @foreach (var option in input.Options)
+                            {
+                                <option value="@option.Id" selected="@(input.OptionId == option.Id)">@option.Label</option>
+                            }
+                        </select>
+                        break;
+                    case AttributeDataType.MultiSelect:
+                        <div id="@id">
+                            @foreach (var option in input.Options)
+                            {
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="@id-@option.Id" name="@(prefix).OptionIds" value="@option.Id"
+                                           checked="@input.OptionIds.Contains(option.Id)" />
+                                    <label class="form-check-label" for="@id-@option.Id">@option.Label</label>
+                                </div>
+                            }
+                            @if (input.Options.Count == 0)
+                            {
+                                <span class="text-body-secondary small">No options defined yet.</span>
+                            }
+                        </div>
+                        break;
+                }
+            </div>
+        }
+    </div>
+}

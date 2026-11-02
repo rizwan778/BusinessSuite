@@ -1,0 +1,16 @@
+@{
+    Layout = "_MinimalLayout";
+    ViewData.SetPageTitle("Account locked");
+}
+
+<div class="auth-card card border-0 shadow-sm text-center">
+    <div class="card-body p-4 p-sm-5">
+        <span class="status-icon status-icon-warning"><i class="bi bi-lock" aria-hidden="true"></i></span>
+        <h1 class="h4 mt-3">Account temporarily locked</h1>
+        <p class="text-body-secondary">
+            Too many unsuccessful sign-in attempts. For your security the account is locked for a short time.
+            Please try again later or contact your administrator.
+        </p>
+        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Back to sign in</a>
+    </div>
+</div>

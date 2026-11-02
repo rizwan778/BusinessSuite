@@ -1,0 +1,111 @@
+@model ProductDetails
+@{
+    ViewData.SetPageTitle(Model.Name);
+    ViewData.AddBreadcrumb("Products", Url.Action("Index", "Products"));
+    ViewData.AddBreadcrumb(Model.Name);
+
+    string Display(AttributeValueDetails value) => value.DataType switch
+    {
+        AttributeDataType.Text => value.Text ?? "—",
+        AttributeDataType.Number or AttributeDataType.Decimal => value.Number?.ToString("0.####", CultureInfo.CurrentCulture) ?? "—",
+        AttributeDataType.Date => value.Date?.ToString("d", CultureInfo.CurrentCulture) ?? "—",
+        AttributeDataType.Boolean => value.Boolean is null ? "—" : value.Boolean.Value ? "Yes" : "No",
+        _ => string.Join(", ", value.Options.Select(option => option.Label)),
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">@Model.Name <span class="badge @(Model.IsActive ? "text-bg-success" : "text-bg-secondary") align-middle">@(Model.IsActive ? "Active" : "Inactive")</span></h1>
+        <div class="text-body-secondary small"><code>@Model.Sku</code>@if (!string.IsNullOrEmpty(Model.Barcode)) { <span> · @Model.Barcode</span> } · @(Model.CategoryName ?? "No category")</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Edit</a>
+        <form asp-action="SetStatus" asp-route-id="@Model.Id" method="post" data-disable-on-submit>
+            <input type="hidden" name="isActive" value="@((!Model.IsActive).ToString().ToLowerInvariant())" />
+            <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(Model.IsActive ? "Deactivate" : "Activate")</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h2 class="h6">Details</h2>
+            <dl class="row mb-0 small">
+                @if (!string.IsNullOrEmpty(Model.Description)) { <dt class="col-5">Description</dt><dd class="col-7">@Model.Description</dd> }
+                <dt class="col-5">Unit</dt><dd class="col-7">@Model.BaseUnitCode</dd>
+                <dt class="col-5">Type</dt><dd class="col-7">@(Model.HasVariants ? "With variants" : "Simple")</dd>
+                <dt class="col-5">Cost price</dt><dd class="col-7">@(Model.CostPrice?.ToString("N2") ?? "—")</dd>
+                <dt class="col-5">Sale price</dt><dd class="col-7">@(Model.SalePrice?.ToString("N2") ?? "—")</dd>
+                <dt class="col-5">Reorder level</dt><dd class="col-7">@(Model.ReorderLevel?.ToString("0.####") ?? "—")</dd>
+                <dt class="col-5">Tracking</dt>
+                <dd class="col-7">@(Model.TracksStock ? "Stock" : "No stock")@(Model.TracksBatches ? ", batches" : "")@(Model.RequiresExpiry ? ", expiry" : "")@(Model.AllowNegativeStock ? ", negative stock allowed" : "")</dd>
+                @if (Model.TracksStock)
+                {
+                    <dt class="col-5">Stock</dt><dd class="col-7">@Model.StockOnHand.ToString("0.####") on hand · @Model.StockAvailable.ToString("0.####") available</dd>
+                }
+            </dl>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h2 class="h6">Attributes</h2>
+            @if (Model.Attributes.Count == 0)
+            {
+                <p class="text-body-secondary small mb-0">No attribute values.</p>
+            }
+            else
+            {
+                <dl class="row mb-0 small">
+                    @foreach (var value in Model.Attributes)
+                    {
+                        <dt class="col-5">@value.Name</dt>
+                        <dd class="col-7">@Display(value)@if (!string.IsNullOrEmpty(value.UnitLabel) && value.Number is not null) { <span> @value.UnitLabel</span> }</dd>
+                    }
+                </dl>
+            }
+        </div></div>
+    </div>
+</div>
+
+@if (Model.HasVariants)
+{
+    <div class="card border-0 shadow-sm mt-3">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0">Variants (@Model.Variants.Count)</h2>
+            <a asp-action="CreateVariant" asp-route-productId="@Model.Id" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add variant</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>SKU</th><th>Name</th><th>Attributes</th><th class="text-end">Price</th><th class="text-end">In stock</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var variant in Model.Variants)
+                    {
+                        <tr>
+                            <td><code>@variant.Sku</code>@if (!string.IsNullOrEmpty(variant.Barcode)) { <div class="small text-body-secondary">@variant.Barcode</div> }</td>
+                            <td>@(variant.Name ?? "—")</td>
+                            <td class="small">@string.Join(", ", variant.Attributes.Select(value => $"{value.Name}: {Display(value)}"))</td>
+                            <td class="text-end">@((variant.SalePrice ?? Model.SalePrice)?.ToString("N2") ?? "—")</td>
+                            <td class="text-end">@variant.StockOnHand.ToString("0.####")</td>
+                            <td><span class="badge @(variant.IsActive ? "text-bg-success" : "text-bg-secondary")">@(variant.IsActive ? "Active" : "Inactive")</span></td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="EditVariant" asp-route-productId="@Model.Id" asp-route-variantId="@variant.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                <form asp-action="SetVariantStatus" method="post" class="d-inline" data-disable-on-submit>
+                                    <input type="hidden" name="productId" value="@Model.Id" />
+                                    <input type="hidden" name="variantId" value="@variant.Id" />
+                                    <input type="hidden" name="isActive" value="@((!variant.IsActive).ToString().ToLowerInvariant())" />
+                                    <button type="submit" class="btn btn-sm @(variant.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(variant.IsActive ? "Deactivate" : "Activate")</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (Model.Variants.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-center text-body-secondary py-3">No variants yet.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

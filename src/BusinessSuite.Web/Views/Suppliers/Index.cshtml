@@ -1,0 +1,35 @@
+@model SupplierListViewModel
+@{ ViewData.SetPageTitle("Suppliers"); }
+<form method="get" class="card card-body border-0 shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6"><label class="form-label small" for="search">Search name, contact, phone or e-mail</label><input id="search" name="search" value="@Model.Search" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label small" for="status">Status</label>
+            <select id="status" name="status" class="form-select">
+                <option value="">All</option>
+                <option value="active" selected="@(Model.Status == "active")">Active</option>
+                <option value="inactive" selected="@(Model.Status == "inactive")">Inactive</option>
+            </select></div>
+        <div class="col-md-3 d-flex gap-2"><button class="btn btn-outline-primary flex-grow-1" type="submit">Filter</button><a asp-action="Index" class="btn btn-outline-secondary" title="Clear"><i class="bi bi-x-lg" aria-hidden="true"></i></a></div>
+    </div>
+</form>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Supplier</th><th>Contact person</th><th>Phone</th><th>E-mail</th><th>Address</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var supplier in Model.Suppliers.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@supplier.Id" class="fw-semibold text-decoration-none">@supplier.Name</a></td>
+                    <td>@(supplier.ContactPerson ?? "—")</td><td>@(supplier.Phone ?? "—")</td><td>@(supplier.Email ?? "—")</td><td>@(supplier.Address ?? "—")</td>
+                    <td><span class="badge @(supplier.IsActive ? "text-bg-success" : "text-bg-secondary")">@(supplier.IsActive ? "Active" : "Inactive")</span></td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Details" asp-route-id="@supplier.Id" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                        <a asp-action="Edit" asp-route-id="@supplier.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+            }
+            @if (Model.Suppliers.Items.Count == 0) { <tr><td colspan="7" class="text-center text-body-secondary py-4">No suppliers found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model.Suppliers)" />

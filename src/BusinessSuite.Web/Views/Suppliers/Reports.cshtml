@@ -1,0 +1,47 @@
+@model SupplierReportViewModel
+@{ ViewData.SetPageTitle("Supplier reports"); }
+<form method="get" class="card card-body border-0 shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3"><label class="form-label small" for="from">From</label><input id="from" name="from" type="date" value="@(Model.From?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" value="@(Model.To?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label small" for="supplierId">Purchase history of</label>
+            <select id="supplierId" name="supplierId" class="form-select"><option value="">— none —</option>
+                @foreach (var row in Model.Rows) { <option value="@row.Supplier.Id" selected="@(row.Supplier.Id == Model.SupplierId)">@row.Supplier.Name</option> }</select></div>
+        <div class="col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Run</button></div>
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-transparent"><h3 class="h6 mb-0">Supplier-wise purchases and outstanding balances</h3></div>
+    <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Supplier</th><th class="text-end">Purchases</th><th class="text-end">Total</th><th class="text-end">Paid</th><th class="text-end">Outstanding</th><th>Last purchase</th></tr></thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                <tr><td><a asp-action="Details" asp-route-id="@row.Supplier.Id" class="text-decoration-none">@row.Supplier.Name</a>@if (!row.Supplier.IsActive) { <span class="badge text-bg-secondary ms-1">Inactive</span> }</td>
+                    <td class="text-end">@row.Statistics.PurchaseCount</td><td class="text-end">@row.Statistics.TotalPurchases.ToString("N2")</td><td class="text-end">@row.Statistics.AmountPaid.ToString("N2")</td>
+                    <td class="text-end">@row.Statistics.Outstanding.ToString("N2")</td><td>@(row.Statistics.LastPurchaseDate?.ToString("d") ?? "—")</td></tr>
+            }
+            @if (Model.Rows.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-3">No suppliers.</td></tr> }
+        </tbody>
+        <tfoot><tr class="fw-bold"><td>Total</td><td class="text-end">@Model.Totals.PurchaseCount</td><td class="text-end">@Model.Totals.TotalPurchases.ToString("N2")</td><td class="text-end">@Model.Totals.AmountPaid.ToString("N2")</td><td class="text-end">@Model.Totals.Outstanding.ToString("N2")</td><td></td></tr></tfoot>
+    </table></div>
+</div>
+<p class="form-text">Counts submitted, partly received and received purchases; drafts and cancelled ones are left out.</p>
+
+@if (Model.Selected is { } selected)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent"><h3 class="h6 mb-0">Purchase history · @selected.Name</h3></div>
+        <div class="table-responsive"><table class="table align-middle mb-0">
+            <thead><tr><th>Number</th><th>Date</th><th>Warehouse</th><th class="text-end">Total</th><th>Payment</th><th>Status</th></tr></thead>
+            <tbody>
+                @foreach (var purchase in Model.History)
+                {
+                    <tr><td><a asp-controller="Purchases" asp-action="Details" asp-route-id="@purchase.Id" class="text-decoration-none">@purchase.Number</a></td><td>@purchase.PurchaseDate.ToString("d")</td><td>@purchase.WarehouseName</td>
+                        <td class="text-end">@purchase.GrandTotal.ToString("N2")</td><td>@purchase.PaymentStatus</td><td>@purchase.Status</td></tr>
+                }
+                @if (Model.History.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-3">No purchases in this period.</td></tr> }
+            </tbody></table></div>
+    </div>
+}

@@ -1,0 +1,48 @@
+@*
+    The Inventory page: every sub-page (stock, warehouses, adjustments, transfers, movements, batches, reports) is a tab here.
+*@
+@using BusinessSuite.Application.Common.Security
+@using BusinessSuite.Web.Framework.Security
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService Authorization
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    if (string.IsNullOrEmpty(ViewData.GetPageTitle()))
+    {
+        ViewData.SetPageTitle("Inventory");
+    }
+
+    var current = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var canSeeReports = (await Authorization.AuthorizeAsync(User, null, new PermissionRequirement(Permissions.Inventory.ReportsView))).Succeeded;
+    var tabs = new List<(string Title, string Action, string Icon, string Match)>
+    {
+        ("Stock", "Index", "boxes", "Index"),
+        ("Warehouses", "Warehouses", "building", "Warehouse"),
+        ("Adjustments", "Adjustments", "sliders2", "Adjust"),
+        ("Transfers", "Transfers", "arrow-left-right", "Transfer"),
+        ("Movements", "Movements", "clock-history", "Movement"),
+        ("Batches", "Batches", "calendar2-week", "Batch"),
+    };
+    if (canSeeReports)
+    {
+        tabs.Add(("Reports", "Reports", "bar-chart-line", "Report"));
+    }
+}
+
+<div class="mb-3">
+    <h1 class="h4 mb-0">Inventory</h1>
+    <p class="text-body-secondary small mb-0">Stock levels, warehouses, adjustments, transfers, batches and reports.</p>
+</div>
+<ul class="section-tabs">
+    @foreach (var tab in tabs)
+    {
+        var active = tab.Match == "Index" ? current == "Index" : current.Contains(tab.Match, StringComparison.Ordinal);
+        <li>
+            <a class="section-tab @(active ? "active" : null)" asp-controller="Inventory" asp-action="@tab.Action" aria-current="@(active ? "page" : null)">
+                <i class="bi bi-@tab.Icon me-1" aria-hidden="true"></i>@tab.Title
+            </a>
+        </li>
+    }
+</ul>
+
+@RenderBody()

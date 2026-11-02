@@ -1,0 +1,33 @@
+@model PagedResult<StockAdjustmentSummary>
+@{
+    var warehouses = (IReadOnlyList<SelectListItem>)ViewData["Warehouses"]!;
+    var selectedWarehouse = ViewData["WarehouseId"]?.ToString();
+    var selectedStatus = ViewData["Status"] as StockAdjustmentStatus?;
+}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input name="search" value="@(ViewData["Search"])" class="form-control w-auto" placeholder="Search number" aria-label="Search" />
+        <select name="warehouseId" class="form-select w-auto" aria-label="Warehouse"><option value="">All warehouses</option>
+            @foreach (var option in warehouses) { <option value="@option.Value" selected="@(option.Value == selectedWarehouse)">@option.Text</option> }</select>
+        <select name="status" class="form-select w-auto" asp-items="Html.GetEnumSelectList<StockAdjustmentStatus>()" aria-label="Status"><option value="">All statuses</option></select>
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </form>
+    <a asp-action="CreateAdjustment" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New adjustment</a>
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Number</th><th>Date</th><th>Warehouse</th><th>Reason</th><th class="text-end">Items</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var adjustment in Model.Items)
+            {
+                <tr>
+                    <td><a asp-action="AdjustmentDetails" asp-route-id="@adjustment.Id" class="fw-semibold text-decoration-none">@adjustment.Number</a></td>
+                    <td>@adjustment.AdjustmentDate.ToString("d")</td><td>@adjustment.WarehouseName</td><td>@adjustment.Reason</td><td class="text-end">@adjustment.ItemCount</td>
+                    <td><span class="badge @(adjustment.Status == StockAdjustmentStatus.Posted ? "text-bg-success" : adjustment.Status == StockAdjustmentStatus.Draft ? "text-bg-warning" : "text-bg-secondary")">@adjustment.Status</span></td>
+                </tr>
+            }
+            @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No adjustments found.</td></tr> }
+        </tbody>
+    </table>
+</div></div>
+<partial name="_Pager" model="PagerModel.From(Model)" />

@@ -1,0 +1,35 @@
+@model IReadOnlyList<SidebarSectionViewModel>
+@* Note: "section" is a reserved Razor keyword, so loop variables use other names. *@
+<nav class="app-nav" aria-label="Main navigation">
+    @foreach (var menuSection in Model)
+    {
+        <div class="app-nav-section">
+            <div class="app-nav-section-title">@menuSection.Title</div>
+            <ul class="list-unstyled mb-0">
+                @foreach (var entry in menuSection.Items)
+                {
+                    var item = entry.Item;
+                    <li>
+                        @if (item.Status == ModuleStatus.Available && item.Controller is not null)
+                        {
+                            <a class="app-nav-link @(entry.IsActive ? "active" : null)"
+                               asp-area="@(item.Area ?? string.Empty)" asp-controller="@item.Controller" asp-action="@item.Action"
+                               aria-current="@(entry.IsActive ? "page" : null)">
+                                <i class="bi bi-@item.Icon" aria-hidden="true"></i>
+                                <span>@item.Title</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="app-nav-link is-planned" aria-disabled="true" title="Planned for @item.PlannedPhase">
+                                <i class="bi bi-@item.Icon" aria-hidden="true"></i>
+                                <span>@item.Title</span>
+                                <span class="app-nav-badge">@(item.PlannedPhase?.Replace("Phase ", "P", StringComparison.Ordinal))</span>
+                            </span>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</nav>
